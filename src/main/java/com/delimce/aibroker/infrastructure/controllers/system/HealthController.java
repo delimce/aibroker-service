@@ -1,15 +1,17 @@
 package com.delimce.aibroker.infrastructure.controllers.system;
 
 import org.springframework.web.bind.annotation.GetMapping;
-
 import org.springframework.web.bind.annotation.RestController;
 
+import com.delimce.shared.domain.dto.ApiResponse;
+import com.delimce.shared.infrastructure.BaseController;
+
 @RestController
-public class HealthController {
+public class HealthController extends BaseController {
 
     @GetMapping("/health")
-    public String status() {
-        return "OK";
+    public ApiResponse health() {
+        return responseOk("OK");
     }
 
 }
