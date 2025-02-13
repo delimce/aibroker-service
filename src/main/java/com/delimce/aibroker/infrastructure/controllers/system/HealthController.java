@@ -7,7 +7,7 @@ import com.delimce.shared.domain.dto.ApiResponse;
 import com.delimce.shared.infrastructure.BaseController;
 
 @RestController
-public class HealthController extends BaseController {
+final class HealthController extends BaseController {
 
     @GetMapping("/health")
     public ApiResponse health() {
