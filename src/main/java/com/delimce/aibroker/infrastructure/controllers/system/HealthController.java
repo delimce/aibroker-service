@@ -11,7 +11,7 @@ final class HealthController extends BaseController {
 
     @GetMapping("/health")
     public ApiResponse health() {
-        return responseOk("OK");
+        return responseOk(null);
     }
 
 }

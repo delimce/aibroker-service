@@ -12,7 +12,7 @@ public class BaseController implements ControllerInterface {
 
     @Override
     public ApiResponse responseCreated(Object data) {
-        return new ApiResponse(data, 201, "Created");
+        return new ApiResponse(data, 201, ApiResponse.CREATED);
     }
 
 }
