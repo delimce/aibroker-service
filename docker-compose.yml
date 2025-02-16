@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0.25
+    container_name: aibroker_mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: aibroker_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER_HOST: '%'
+      MYSQL_ROOT_PASSWORD_PLUGIN: mysql_native_password
+      MYSQL_USER_PASSWORD_PLUGIN: mysql_native_password
+
+    volumes:
+      - mysql_data:/var/lib/mysql_8.0.25/
+
+volumes:
+  mysql_data:
