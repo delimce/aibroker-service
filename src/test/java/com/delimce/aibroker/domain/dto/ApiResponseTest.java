@@ -2,8 +2,6 @@ package com.delimce.aibroker.domain.dto;
 
 import org.junit.jupiter.api.Test;
 
-import com.delimce.aibroker.domain.dto.ApiResponse;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -11,7 +9,7 @@ public class ApiResponseTest {
 
     @Test
     public void testApiResponseWithAllParameters() {
-        ApiResponse response = new ApiResponse("Info", 200, "OK");
+        var response = new ApiResponse("Info", 200, "OK");
         assertEquals("Info", response.info());
         assertEquals(200, response.status());
         assertEquals("OK", response.message());
@@ -19,7 +17,7 @@ public class ApiResponseTest {
 
     @Test
     public void testApiResponseWithInfoOnly() {
-        ApiResponse response = new ApiResponse("Info");
+        var response = new ApiResponse("Info");
         assertEquals("Info", response.info());
         assertEquals(200, response.status());
         assertEquals("OK", response.message());
