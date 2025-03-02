@@ -5,6 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.delimce.aibroker.domain.repositories.ModelRepository;
 import com.delimce.aibroker.domain.repositories.ProviderRepository;
+import com.delimce.aibroker.domain.repositories.UserRepository;
 import com.github.javafaker.Faker;
 
 @SpringBootTest
@@ -16,6 +17,9 @@ public abstract class TestHandler {
 
     @Autowired
     protected ModelRepository modelRepository;
+
+     @Autowired
+    protected UserRepository userRepository;
 
     public static Faker faker() {
         return faker;
@@ -37,6 +41,7 @@ public abstract class TestHandler {
         // jdbcTemplate.execute("DELETE FROM orders");
         // jdbcTemplate.execute("DELETE FROM users");
 
+        userRepository.deleteAll();
         providerRepository.deleteAll();
         modelRepository.deleteAll();
         System.out.println("Database purged before test execution");
