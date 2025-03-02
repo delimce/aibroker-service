@@ -10,35 +10,35 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Builder
-@Table(name = "tbl_user", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email")
-})
-public class User {
+@Table(name = "tbl_model")
+public class Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 90)
+    @ManyToOne
+    @JoinColumn(name = "provider_id", nullable = false)
+    private Provider provider;
+
+    @Column(nullable = false, length = 120)
     private String name;
 
-    @Column(nullable = false, length = 90)
-    private String lastName;
-
-    @Column(nullable = false, length = 130)
-    private String email;
+    @Column(nullable = false)
+    private boolean enabled;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
