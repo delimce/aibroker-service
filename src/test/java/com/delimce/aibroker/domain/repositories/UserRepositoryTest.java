@@ -1,7 +1,7 @@
 package com.delimce.aibroker.domain.repositories;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,8 +12,10 @@ import com.delimce.aibroker.domain.entities.User;
 
 public class UserRepositoryTest extends TestHandler {
 
-    @Autowired
-    private UserRepository userRepository;
+    @BeforeEach
+    void setup() {
+        super.setUp();
+    }
 
     @Test
     void repositoryInjectionTest() {

@@ -7,11 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.delimce.aibroker.domain.entities.Model;
 import com.delimce.aibroker.domain.entities.Provider;
+import com.delimce.aibroker.domain.enums.ModelType;
 import com.delimce.aibroker.utils.TestHandler;
 
 public class ModelRepositoryTest extends TestHandler {
 
- 
     protected Provider aiProvider;
 
     @BeforeEach
@@ -36,7 +36,9 @@ public class ModelRepositoryTest extends TestHandler {
         // Given
         Model model = new Model();
         model.setName("GPT-4");
+        model.setType(ModelType.CHAT);
         model.setProvider(aiProvider);
+        model.setEnabled(true);
 
         // When
         Model savedModel = modelRepository.save(model);
@@ -51,6 +53,7 @@ public class ModelRepositoryTest extends TestHandler {
         // Given
         Model model = new Model();
         model.setName("BERT");
+        model.setType(ModelType.CHAT);
         model.setProvider(aiProvider);
 
         Long id = modelRepository.save(model).getId();
@@ -68,6 +71,7 @@ public class ModelRepositoryTest extends TestHandler {
         // Given
         Model model = new Model();
         model.setName("LLaMA");
+        model.setType(ModelType.CHAT);
         model.setProvider(aiProvider);
 
         Long id = modelRepository.save(model).getId();

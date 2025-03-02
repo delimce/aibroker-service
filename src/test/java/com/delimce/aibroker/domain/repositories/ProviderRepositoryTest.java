@@ -2,17 +2,25 @@ package com.delimce.aibroker.domain.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.delimce.aibroker.domain.entities.Model;
 import com.delimce.aibroker.domain.entities.Provider;
+import com.delimce.aibroker.domain.enums.ModelType;
 import com.delimce.aibroker.utils.TestHandler;
 
 class ProviderRepositoryTest extends TestHandler {
 
     @Autowired
     private ProviderRepository providerRepository;
+
+    @BeforeEach
+    void setup() {
+        super.setUp();
+    }
 
     @Test
     void shouldSaveProvider() {
@@ -71,9 +79,9 @@ class ProviderRepositoryTest extends TestHandler {
 
         // generate list of Models
         List<Model> models = List.of(
-                Model.builder().name(faker().name().name()).enabled(true).provider(provider).build(),
-                Model.builder().name(faker().name().name()).enabled(true).provider(provider).build(),
-                Model.builder().name(faker().name().name()).enabled(true).provider(provider).build());
+                Model.builder().name(faker().name().name()).type(ModelType.CHAT).enabled(true).provider(provider).build(),
+                Model.builder().name(faker().name().name()).type(ModelType.CHAT).enabled(true).provider(provider).build(),
+                Model.builder().name(faker().name().name()).type(ModelType.CHAT).enabled(true).provider(provider).build());
 
         provider.setModels(models);
 
