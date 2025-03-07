@@ -8,4 +8,6 @@ public interface LoggerInterface {
 
     public void error(String message);
 
+    public void error(String message, Object... args);
+
 }

@@ -34,4 +34,9 @@ public class Slf4jLoggerAdapter implements LoggerInterface {
     public void error(String message) {
         logger.error(message);
     }
+
+    @Override
+    public void error(String message, Object... args) {
+        logger.error(message, args);
+    }
 }

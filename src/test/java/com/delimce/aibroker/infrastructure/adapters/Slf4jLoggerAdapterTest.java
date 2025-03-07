@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 class Slf4jLoggerAdapterTest {
 
     private ListAppender<ILoggingEvent> listAppender;
@@ -30,7 +29,7 @@ class Slf4jLoggerAdapterTest {
         Logger customLogger = (Logger) LoggerFactory.getLogger(Slf4jLoggerAdapterTest.class);
         customLogger.addAppender(listAppender);
         customLoggerAdapter = new Slf4jLoggerAdapter(Slf4jLoggerAdapterTest.class);
-        
+
         // Clear any existing log events
         listAppender.list.clear();
     }
@@ -76,6 +75,20 @@ class Slf4jLoggerAdapterTest {
         ILoggingEvent loggingEvent = listAppender.list.get(0);
         assertEquals(Level.ERROR, loggingEvent.getLevel());
         assertEquals(message, loggingEvent.getMessage());
+    }
+
+    @Test
+    void errorMethod_withException_shouldLogWithErrorLevel() {
+        // Given
+        String message = "Error with exception: {}";
+        Exception exception = new RuntimeException("Test exception");
+
+        // When
+        loggerAdapter.error(message, exception);
+
+        // Then
+        ILoggingEvent loggingEvent = listAppender.list.get(0);
+        assertEquals(Level.ERROR, loggingEvent.getLevel());
     }
 
     @Test
