@@ -1,48 +1,91 @@
 package com.delimce.aibroker.infrastructure.controllers.system;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import jakarta.servlet.RequestDispatcher;
+import com.delimce.aibroker.domain.ports.LoggerInterface;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+class CustomErrorControllerTest {
 
-@WebMvcTest(CustomErrorController.class)
-public class CustomErrorControllerTest {
+    @Mock
+    private LoggerInterface loggerMock;
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock
+    private HttpServletRequest requestMock;
 
-    @SuppressWarnings("removal")
-    @MockBean
-    private HttpServletRequest request;
+    @Mock
+    private HttpServletResponse responseMock;
 
-    @Test
-    public void handleError_shouldReturnNotFoundMessage_whenStatusIs404() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, HttpStatus.NOT_FOUND.value());
+    private CustomErrorController customErrorController;
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/error").requestAttr("javax.servlet.error.status_code",
-                HttpStatus.NOT_FOUND.value()))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("404 - Resource not found."));
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        customErrorController = new CustomErrorController(loggerMock);
     }
 
     @Test
-    public void handleError_shouldReturnGenericErrorMessage_whenStatusIsNot404() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, HttpStatus.INTERNAL_SERVER_ERROR.value());
+    void handleError_WithStatusCode404_ReturnsNotFoundMessage() {
+        // Arrange
+        when(requestMock.getAttribute("javax.servlet.error.status_code")).thenReturn(HttpStatus.NOT_FOUND.value());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/error").requestAttr("javax.servlet.error.status_code",
-                HttpStatus.INTERNAL_SERVER_ERROR.value()))
-                .andExpect(status().isInternalServerError())
-                .andExpect(content().string("An error occurred. Please try again later."));
+        // Act
+        String result = customErrorController.handleError(requestMock, responseMock);
+
+        // Assert
+        assertEquals("404 - Resource not found.", result);
+        verify(responseMock).setStatus(HttpStatus.NOT_FOUND.value());
+        verifyNoInteractions(loggerMock);
+    }
+
+    @Test
+    void handleError_WithStatusCode500_ReturnsGenericErrorMessage() {
+        // Arrange
+        when(requestMock.getAttribute("javax.servlet.error.status_code"))
+                .thenReturn(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        // Act
+        String result = customErrorController.handleError(requestMock, responseMock);
+
+        // Assert
+        assertEquals("An error occurred. Please try again later.", result);
+        verify(responseMock).setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        verifyNoInteractions(loggerMock);
+    }
+
+    @Test
+    void handleError_WithOtherStatusCode_ReturnsGenericErrorMessage() {
+        // Arrange
+        when(requestMock.getAttribute("javax.servlet.error.status_code")).thenReturn(HttpStatus.BAD_REQUEST.value());
+
+        // Act
+        String result = customErrorController.handleError(requestMock, responseMock);
+
+        // Assert
+        assertEquals("An error occurred. Please try again later.", result);
+        verify(responseMock).setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        verifyNoInteractions(loggerMock);
+    }
+
+    @Test
+    void handleError_WhenExceptionOccurs_LogsErrorAndReturnsNotFoundMessage() {
+        // Arrange
+        String exceptionMessage = "Test exception";
+        when(requestMock.getAttribute("javax.servlet.error.status_code"))
+                .thenThrow(new RuntimeException(exceptionMessage));
+
+        // Act
+        String result = customErrorController.handleError(requestMock, responseMock);
+
+        // Assert
+        assertEquals("404 - Resource not found.", result);
+        verify(responseMock).setStatus(HttpStatus.NOT_FOUND.value());
+        verify(loggerMock).error("Exception in error handler: " + exceptionMessage);
     }
 }
