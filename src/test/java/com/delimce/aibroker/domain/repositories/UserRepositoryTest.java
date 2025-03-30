@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.delimce.aibroker.utils.TestHandler;
 
 import com.delimce.aibroker.domain.entities.User;
+import com.delimce.aibroker.domain.enums.UserStatus;
 
 public class UserRepositoryTest extends TestHandler {
 
@@ -29,6 +30,7 @@ public class UserRepositoryTest extends TestHandler {
         var user = User.builder()
                 .name(faker().name().firstName())
                 .lastName(faker().name().lastName())
+                .password(faker().internet().password())
                 .email(faker().internet().emailAddress())
                 .build();
 
@@ -52,7 +54,9 @@ public class UserRepositoryTest extends TestHandler {
         var user = User.builder()
                 .name(faker().name().firstName())
                 .lastName(faker().name().lastName())
+                .password(faker().internet().password())
                 .email(faker().internet().emailAddress())
+                .status(UserStatus.INACTIVE)
                 .build();
 
         // Save the user and assert that it gets an ID.
@@ -63,6 +67,7 @@ public class UserRepositoryTest extends TestHandler {
         User userWithExistingEmail = User.builder()
                 .name(faker().name().firstName())
                 .lastName(faker().name().lastName())
+                .password(faker().internet().password())
                 .email(savedUser.getEmail())
                 .build();
 
@@ -77,4 +82,36 @@ public class UserRepositoryTest extends TestHandler {
         assertThat(isFailed).isTrue();
     }
 
+    @Test
+    void findByEmailTest() {
+        // Create a new User instance
+        var user = User.builder()
+                .name(faker().name().firstName())
+                .lastName(faker().name().lastName())
+                .password(faker().internet().password())
+                .email(faker().internet().emailAddress())
+                .build();
+
+        // Save the user
+        userRepository.save(user);
+
+        // Find the user by email
+        var foundUser = userRepository.findByEmail(user.getEmail());
+
+        // Verify that the user was found
+        assertThat(foundUser).isNotNull();
+        assertThat(foundUser.getEmail()).isEqualTo(user.getEmail());
+        assertThat(foundUser.getName()).isEqualTo(user.getName());
+        assertThat(foundUser.getLastName()).isEqualTo(user.getLastName());
+    }
+
+    @Test
+    void findByEmailNotFoundTest() {
+        // Try to find a user with a non-existent email
+        var nonExistentEmail = "nonexistent" + System.currentTimeMillis() + "@example.com";
+        var foundUser = userRepository.findByEmail(nonExistentEmail);
+
+        // Verify that no user was found
+        assertThat(foundUser).isNull();
+    }
 }
