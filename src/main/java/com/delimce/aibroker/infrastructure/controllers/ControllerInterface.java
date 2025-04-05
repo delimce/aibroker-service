@@ -13,6 +13,8 @@ public interface ControllerInterface {
 
     public ApiResponse responseError(String message);
 
+    public ApiResponse responseError(String message, int status);
+
     public ResponseEntity<?> handleMethodArgumentNotValid(MethodArgumentNotValidException ex);
 
 }

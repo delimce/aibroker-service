@@ -3,6 +3,7 @@ package com.delimce.aibroker.infrastructure.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -13,10 +14,14 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.delimce.aibroker.domain.dto.ApiResponse;
+import com.delimce.aibroker.domain.ports.LoggerInterface;
 
 @ControllerAdvice
 public class BaseController extends ResponseEntityExceptionHandler
         implements ControllerInterface {
+
+    @Autowired
+    private LoggerInterface logger;
 
     @Override
     public ApiResponse responseOk(Object data) {
@@ -31,6 +36,11 @@ public class BaseController extends ResponseEntityExceptionHandler
     @Override
     public ApiResponse responseError(String message) {
         return new ApiResponse(message, 400);
+    }
+
+    @Override
+    public ApiResponse responseError(String message, int status) {
+        return new ApiResponse(message, status);
     }
 
     @Override
@@ -54,6 +64,19 @@ public class BaseController extends ResponseEntityExceptionHandler
     public ResponseEntity<?> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'handleMethodArgumentNotValid'");
+    }
+
+    protected ResponseEntity<ApiResponse> illegalArgumentExceptionResponse(
+            IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(responseError(e.getMessage()));
+    }
+
+    protected ResponseEntity<ApiResponse> unhandledExceptionResponse(
+            Exception e) {
+        logger.error("Unhandled exception: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(responseError("An error occurred during execution", 500));
     }
 
 }

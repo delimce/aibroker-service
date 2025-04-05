@@ -2,11 +2,15 @@ package com.delimce.aibroker.infrastructure.controllers.account;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.delimce.aibroker.application.account.AccountLoginService;
 import com.delimce.aibroker.application.account.AccountRegisterService;
 import com.delimce.aibroker.domain.dto.ApiResponse;
+import com.delimce.aibroker.domain.dto.requests.users.UserLoginRequest;
 import com.delimce.aibroker.domain.dto.requests.users.UserRegistrationRequest;
 import com.delimce.aibroker.domain.dto.responses.users.UserCreatedResponse;
+import com.delimce.aibroker.domain.dto.responses.users.UserLoggedResponse;
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
+import com.delimce.aibroker.domain.exceptions.account.UserIsNotActiveException;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
 
 import jakarta.validation.Valid;
@@ -25,9 +29,22 @@ public class AccountController extends BaseController {
     @Autowired
     private AccountRegisterService accountRegisterService;
 
+    @Autowired
+    private AccountLoginService accountLoginService;
+
     @PostMapping("/auth")
-    public ApiResponse login() {
-        return responseOk("login ok");
+    public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginRequest request) {
+        try {
+            UserLoggedResponse response = accountLoginService.execute(request);
+            return ResponseEntity.status(HttpStatus.OK).body(responseOk(response));
+        } catch (UserIsNotActiveException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(responseError(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
+        } catch (IllegalArgumentException e) {
+            return illegalArgumentExceptionResponse(e);
+        } catch (Exception e) {
+            return unhandledExceptionResponse(e);
+        }
     }
 
     @PostMapping("/register")
@@ -35,13 +52,12 @@ public class AccountController extends BaseController {
         try {
             UserCreatedResponse userCreated = accountRegisterService.execute(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(responseCreated(userCreated));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseError(e.getMessage()));
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseError(e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return illegalArgumentExceptionResponse(e);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(responseError("An error occurred during registration"));
+            return unhandledExceptionResponse(e);
         }
     }
 

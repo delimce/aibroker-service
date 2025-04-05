@@ -5,9 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.delimce.aibroker.domain.entities.User;
 
-
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-   
     public User findByEmail(String email);
 }
