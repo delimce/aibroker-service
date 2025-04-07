@@ -18,7 +18,7 @@ public abstract class TestHandler {
     @Autowired
     protected ModelRepository modelRepository;
 
-     @Autowired
+    @Autowired
     protected UserRepository userRepository;
 
     public static Faker faker() {

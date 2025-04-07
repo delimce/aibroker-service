@@ -5,8 +5,12 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.delimce.aibroker.domain.enums.UserStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,6 +43,14 @@ public class User {
 
     @Column(nullable = false, length = 130)
     private String email;
+
+    @Column(nullable = false, length = 130)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private UserStatus status = UserStatus.PENDING;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
