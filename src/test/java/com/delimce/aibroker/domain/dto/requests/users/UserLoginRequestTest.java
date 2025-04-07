@@ -15,7 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserLoginRequestTest extends TestHandler {
 
     private Validator validator;
+    private static final String VALID_EMAIL = faker().internet().emailAddress();
+    private static final String VALID_PASSWORD = faker().internet().password();
 
+    @Override
     @BeforeEach
     public void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -25,8 +28,8 @@ class UserLoginRequestTest extends TestHandler {
     @Test
     void whenAllFieldsAreValid_thenNoValidationViolations() {
         UserLoginRequest request = UserLoginRequest.builder()
-                .email(faker().internet().emailAddress())
-                .password(faker().internet().password())
+                .email(VALID_EMAIL)
+                .password(VALID_PASSWORD)
                 .build();
 
         Set<ConstraintViolation<UserLoginRequest>> violations = validator.validate(request);
@@ -37,7 +40,7 @@ class UserLoginRequestTest extends TestHandler {
     void whenEmailIsBlank_thenValidationViolation() {
         UserLoginRequest request = UserLoginRequest.builder()
                 .email("")
-                .password(faker().internet().password())
+                .password(VALID_PASSWORD)
                 .build();
 
         Set<ConstraintViolation<UserLoginRequest>> violations = validator.validate(request);
@@ -49,7 +52,7 @@ class UserLoginRequestTest extends TestHandler {
     void whenEmailIsInvalid_thenValidationViolation() {
         UserLoginRequest request = UserLoginRequest.builder()
                 .email("invalid-email")
-                .password(faker().internet().password())
+                .password(VALID_PASSWORD)
                 .build();
 
         Set<ConstraintViolation<UserLoginRequest>> violations = validator.validate(request);
@@ -60,22 +63,29 @@ class UserLoginRequestTest extends TestHandler {
     @Test
     void whenPasswordIsBlank_thenValidationViolation() {
         UserLoginRequest request = UserLoginRequest.builder()
-                .email(faker().internet().emailAddress())
+                .email(VALID_EMAIL)
                 .password("")
                 .build();
 
         Set<ConstraintViolation<UserLoginRequest>> violations = validator.validate(request);
         assertEquals(2, violations.size());
+        assertTrue(violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .anyMatch(message -> message.equals("Password is required")));
+        assertTrue(violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .anyMatch(message -> message.equals("Password must be at least 8 characters long")));
     }
 
     @Test
     void whenPasswordIsTooShort_thenValidationViolation() {
         UserLoginRequest request = UserLoginRequest.builder()
-        .email(faker().internet().emailAddress())
+                .email(VALID_EMAIL)
                 .password("short")
                 .build();
 
         Set<ConstraintViolation<UserLoginRequest>> violations = validator.validate(request);
         assertEquals(1, violations.size());
+        assertEquals("Password must be at least 8 characters long", violations.iterator().next().getMessage());
     }
 }

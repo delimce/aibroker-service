@@ -1,143 +1,167 @@
 package com.delimce.aibroker.infrastructure.adapters;
 
+import com.delimce.aibroker.domain.entities.User;
+import com.delimce.aibroker.domain.enums.UserStatus;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.delimce.aibroker.utils.TestHandler;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class JwtTokenAdapterTest extends TestHandler {
+class JwtTokenAdapterTest {
 
-    @InjectMocks
     private JwtTokenAdapter jwtTokenAdapter;
-
-    private UserDetails userDetails;
-    private final String username = "testuser";
-    private final String secretKey = "ZFg5Mzk3ZGZnZGZnZHNmZzQ1amhndnNkZmdoc2RmZzlkZnN5dXNkZ3JlZ3dnZ2RmZGZkZmRnZGZnZGY=";
-    private final long expirationTime = 3600000; // 1 hour
+    private User testUser;
+    private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
+    private static final long JWT_EXPIRATION = 86400000; // 1 day in milliseconds
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        userDetails = new User(username, "password", new ArrayList<>());
-        ReflectionTestUtils.setField(jwtTokenAdapter, "secretKey", secretKey);
-        ReflectionTestUtils.setField(jwtTokenAdapter, "jwtExpiration", expirationTime);
+    void setUp() {
+        jwtTokenAdapter = new JwtTokenAdapter();
+        ReflectionTestUtils.setField(jwtTokenAdapter, "secretKey", SECRET_KEY);
+        ReflectionTestUtils.setField(jwtTokenAdapter, "jwtExpiration", JWT_EXPIRATION);
+
+        testUser = User.builder()
+                .id(1L)
+                .name("Test")
+                .lastName("User")
+                .email("test@example.com")
+                .password("password")
+                .status(UserStatus.ACTIVE)
+                .build();
     }
 
     @Test
-    void generateToken_shouldCreateValidToken() {
-        // When
-        String token = jwtTokenAdapter.generateToken(userDetails);
+    void generateToken_WithUserDetails_ShouldReturnValidToken() {
+        // when
+        String token = jwtTokenAdapter.generateToken(testUser);
 
-        // Then
+        // then
         assertNotNull(token);
-        assertEquals(username, jwtTokenAdapter.extractUsername(token));
-        assertTrue(jwtTokenAdapter.isTokenValid(token, userDetails));
+        assertTrue(token.length() > 0);
     }
 
     @Test
-    void generateTokenWithClaims_shouldCreateValidTokenWithClaims() {
-        // Given
-        var fakeRole = faker().name().username();
+    void generateToken_WithExtraClaims_ShouldIncludeClaimsInToken() {
+        // given
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", fakeRole);
+        extraClaims.put("role", "ADMIN");
+        extraClaims.put("userId", 1L);
 
-        // When
-        String token = jwtTokenAdapter.generateToken(extraClaims, userDetails);
-
-        // Then
-        assertNotNull(token);
-        assertEquals(username, jwtTokenAdapter.extractUsername(token));
-        assertEquals(fakeRole, jwtTokenAdapter.extractClaim(token, claims -> claims.get("role")));
-        assertTrue(jwtTokenAdapter.isTokenValid(token, userDetails));
-    }
-
-    @Test
-    void extractUsername_shouldReturnCorrectUsername() {
-        // Given
-        String token = jwtTokenAdapter.generateToken(userDetails);
-
-        // When
-        String extractedUsername = jwtTokenAdapter.extractUsername(token);
-
-        // Then
-        assertEquals(username, extractedUsername);
-    }
-
-    @Test
-    void extractExpiration_shouldReturnCorrectExpirationDate() {
-        // Given
-        String token = jwtTokenAdapter.generateToken(userDetails);
-
-        // When
-        Date expirationDate = jwtTokenAdapter.extractExpiration(token);
-
-        // Then
-        assertNotNull(expirationDate);
-        long expectedExpirationTime = System.currentTimeMillis() + expirationTime;
-        long actualExpirationTime = expirationDate.getTime();
-        // Allow a small delta for test execution time
-        assertTrue(Math.abs(expectedExpirationTime - actualExpirationTime) < 1000);
-    }
-
-    @Test
-    void extractAllClaims_shouldReturnAllClaims() {
-        // Given
-        Map<String, Object> extraClaims = new HashMap<>();
-
-        var fakeRole = faker().name().username();
-        var fakeUserId = 1234;
-
-        extraClaims.put("role", fakeRole);
-        extraClaims.put("userId", fakeUserId);
-        String token = jwtTokenAdapter.generateToken(extraClaims, userDetails);
-
-        // When
+        // when
+        String token = jwtTokenAdapter.generateToken(extraClaims, testUser);
         Claims claims = jwtTokenAdapter.extractAllClaims(token);
 
-        // Then
-        assertNotNull(claims);
-        assertEquals(username, claims.getSubject());
-        assertEquals(fakeRole, claims.get("role"));
-        assertEquals(fakeUserId, claims.get("userId"));
+        // then
+        assertNotNull(token);
+        assertEquals("ADMIN", claims.get("role"));
+        assertEquals(1, claims.get("userId"));
     }
 
     @Test
-    void isTokenValid_shouldReturnTrueForValidToken() {
-        // Given
-        String token = jwtTokenAdapter.generateToken(userDetails);
+    void extractEmail_ShouldReturnCorrectEmail() {
+        // given
+        String token = jwtTokenAdapter.generateToken(testUser);
 
-        // When
-        boolean isValid = jwtTokenAdapter.isTokenValid(token, userDetails);
+        // when
+        String email = jwtTokenAdapter.extractEmail(token);
 
-        // Then
+        // then
+        assertEquals(testUser.getEmail(), email);
+    }
+
+    @Test
+    void extractExpiration_ShouldReturnFutureDate() {
+        // given
+        String token = jwtTokenAdapter.generateToken(testUser);
+
+        // when
+        Date expirationDate = jwtTokenAdapter.extractExpiration(token);
+
+        // then
+        assertNotNull(expirationDate);
+        assertTrue(expirationDate.after(new Date()));
+    }
+
+    @Test
+    void extractClaim_WithCustomClaimResolver_ShouldReturnCorrectClaim() {
+        // given
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("customClaim", "customValue");
+        String token = jwtTokenAdapter.generateToken(extraClaims, testUser);
+        Function<Claims, String> claimResolver = claims -> claims.get("customClaim", String.class);
+
+        // when
+        String claimValue = jwtTokenAdapter.extractClaim(token, claimResolver);
+
+        // then
+        assertEquals("customValue", claimValue);
+    }
+
+    @Test
+    void extractAllClaims_ShouldReturnAllClaimsInToken() {
+        // given
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", "USER");
+        String token = jwtTokenAdapter.generateToken(extraClaims, testUser);
+
+        // when
+        Claims claims = jwtTokenAdapter.extractAllClaims(token);
+
+        // then
+        assertNotNull(claims);
+        assertEquals(testUser.getEmail(), claims.getSubject());
+        assertEquals("USER", claims.get("role"));
+    }
+
+    @Test
+    void isTokenValid_WithValidTokenAndMatchingUser_ShouldReturnTrue() {
+        // given
+        String token = jwtTokenAdapter.generateToken(testUser);
+
+        // when
+        boolean isValid = jwtTokenAdapter.isTokenValid(token, testUser);
+
+        // then
         assertTrue(isValid);
     }
 
     @Test
-    void isTokenValid_shouldReturnFalseForDifferentUser() {
-        // Given
-        String token = jwtTokenAdapter.generateToken(userDetails);
-        UserDetails differentUser = new User(faker().name().username(), "password", new ArrayList<>());
+    void isTokenValid_WithValidTokenButDifferentUser_ShouldReturnFalse() {
+        // given
+        String token = jwtTokenAdapter.generateToken(testUser);
+        User differentUser = User.builder()
+                .email("different@example.com")
+                .build();
 
-        // When
+        // when
         boolean isValid = jwtTokenAdapter.isTokenValid(token, differentUser);
 
-        // Then
+        // then
+        assertFalse(isValid);
+    }
+
+    @Test
+    void isTokenValid_WithExpiredToken_ShouldReturnFalse() throws Exception {
+        // given
+        JwtTokenAdapter spyAdapter = spy(jwtTokenAdapter);
+        String token = jwtTokenAdapter.generateToken(testUser);
+        
+        // Mock the extractExpiration method to return a past date
+        Date pastDate = new Date(System.currentTimeMillis() - 1000);
+        doReturn(pastDate).when(spyAdapter).extractExpiration(token);
+
+        // when
+        boolean isValid = spyAdapter.isTokenValid(token, testUser);
+
+        // then
         assertFalse(isValid);
     }
 }

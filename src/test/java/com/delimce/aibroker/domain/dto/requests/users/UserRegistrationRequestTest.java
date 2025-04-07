@@ -1,20 +1,23 @@
 package com.delimce.aibroker.domain.dto.requests.users;
 
 import jakarta.validation.ConstraintViolation;
+import com.delimce.aibroker.utils.TestHandler;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserRegistrationRequestTest {
+class UserRegistrationRequestTest extends TestHandler {
 
     private Validator validator;
 
+    @Override
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
@@ -22,9 +25,9 @@ class UserRegistrationRequestTest {
     @Test
     void testValidUserRegistration() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
+                .firstName(faker().name().firstName())
+                .lastName(faker().name().lastName())
+                .email(faker().internet().emailAddress())
                 .password("password123")
                 .passwordConfirmation("password123")
                 .build();
@@ -37,8 +40,8 @@ class UserRegistrationRequestTest {
     void testInvalidFirstName() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
                 .firstName("")
-                .lastName("Doe")
-                .email("john.doe@example.com")
+                .lastName(faker().name().lastName())
+                .email(faker().internet().emailAddress())
                 .password("password123")
                 .passwordConfirmation("password123")
                 .build();
@@ -49,15 +52,15 @@ class UserRegistrationRequestTest {
                 .toList();
         assertEquals(2, orderedViolations.size());
         assertEquals("Name is required", orderedViolations.get(0));
-        assertEquals("Name must be between 2 and 30 characters long", orderedViolations.get(1)); 
+        assertEquals("Name must be between 2 and 30 characters long", orderedViolations.get(1));
     }
 
     @Test
     void testInvalidLastName() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
-                .firstName("John")
+                .firstName(faker().name().firstName())
                 .lastName("")
-                .email("john.doe@example.com")
+                .email(faker().internet().emailAddress())
                 .password("password123")
                 .passwordConfirmation("password123")
                 .build();
@@ -66,7 +69,7 @@ class UserRegistrationRequestTest {
                 .map(ConstraintViolation::getMessage)
                 .sorted()
                 .toList();
-        
+
         assertEquals(2, orderedViolations.size());
         assertEquals("Last name is required", orderedViolations.get(0));
         assertEquals("Last name must be between 2 and 30 characters long", orderedViolations.get(1));
@@ -75,8 +78,8 @@ class UserRegistrationRequestTest {
     @Test
     void testInvalidEmail() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
-                .firstName("John")
-                .lastName("Doe")
+                .firstName(faker().name().firstName())
+                .lastName(faker().name().lastName())
                 .email("invalid-email")
                 .password("password123")
                 .passwordConfirmation("password123")
@@ -90,9 +93,9 @@ class UserRegistrationRequestTest {
     @Test
     void testShortPassword() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
+                .firstName(faker().name().firstName())
+                .lastName(faker().name().lastName())
+                .email(faker().internet().emailAddress())
                 .password("short")
                 .passwordConfirmation("short")
                 .build();
