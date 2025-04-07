@@ -5,32 +5,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.junit.jupiter.api.Test;
 
 import com.delimce.aibroker.config.SecurityConfig;
-import com.delimce.aibroker.domain.ports.JwtTokenInterface;
-import com.delimce.aibroker.config.JwtAuthenticationFilter;
-
-import org.springframework.security.core.userdetails.UserDetailsService;
+import com.delimce.aibroker.utils.TestConfig;
 
 @WebMvcTest(HealthController.class)
-@Import(SecurityConfig.class)
+@Import({ SecurityConfig.class, TestConfig.class })
 class HealthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @MockBean
-    private JwtTokenInterface jwtTokenInterface;
-
-    @MockBean
-    private UserDetailsService userDetailsService;
 
     @Test
     void healthEndpointReturnsOk() throws Exception {
