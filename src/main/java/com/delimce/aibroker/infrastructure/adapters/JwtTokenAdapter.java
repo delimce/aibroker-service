@@ -19,10 +19,10 @@ import java.util.function.Function;
 @Service
 public class JwtTokenAdapter implements JwtTokenInterface {
 
-    @Value("${application.security.jwt.secret-key}")
+    @Value("${spring.security.jwt.secret-key}")
     private String secretKey;
 
-    @Value("${application.security.jwt.expiration}")
+    @Value("${spring.security.jwt.expiration}")
     private long jwtExpiration;
 
     @Override
