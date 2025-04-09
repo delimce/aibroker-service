@@ -1,21 +1,21 @@
 package com.delimce.aibroker.domain.dto.requests.users;
 
 import jakarta.validation.ConstraintViolation;
-import com.delimce.aibroker.utils.TestHandler;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.github.javafaker.Faker;
 
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserRegistrationRequestTest extends TestHandler {
+class UserRegistrationRequestTest {
 
     private Validator validator;
+    private static final Faker faker = new Faker();
 
-    @Override
     @BeforeEach
     public void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -25,9 +25,9 @@ class UserRegistrationRequestTest extends TestHandler {
     @Test
     void testValidUserRegistration() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
-                .firstName(faker().name().firstName())
-                .lastName(faker().name().lastName())
-                .email(faker().internet().emailAddress())
+                .firstName(faker.name().firstName())
+                .lastName(faker.name().lastName())
+                .email(faker.internet().emailAddress())
                 .password("password123")
                 .passwordConfirmation("password123")
                 .build();
@@ -40,8 +40,8 @@ class UserRegistrationRequestTest extends TestHandler {
     void testInvalidFirstName() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
                 .firstName("")
-                .lastName(faker().name().lastName())
-                .email(faker().internet().emailAddress())
+                .lastName(faker.name().lastName())
+                .email(faker.internet().emailAddress())
                 .password("password123")
                 .passwordConfirmation("password123")
                 .build();
@@ -58,9 +58,9 @@ class UserRegistrationRequestTest extends TestHandler {
     @Test
     void testInvalidLastName() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
-                .firstName(faker().name().firstName())
+                .firstName(faker.name().firstName())
                 .lastName("")
-                .email(faker().internet().emailAddress())
+                .email(faker.internet().emailAddress())
                 .password("password123")
                 .passwordConfirmation("password123")
                 .build();
@@ -78,8 +78,8 @@ class UserRegistrationRequestTest extends TestHandler {
     @Test
     void testInvalidEmail() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
-                .firstName(faker().name().firstName())
-                .lastName(faker().name().lastName())
+                .firstName(faker.name().firstName())
+                .lastName(faker.name().lastName())
                 .email("invalid-email")
                 .password("password123")
                 .passwordConfirmation("password123")
@@ -93,9 +93,9 @@ class UserRegistrationRequestTest extends TestHandler {
     @Test
     void testShortPassword() {
         UserRegistrationRequest request = UserRegistrationRequest.builder()
-                .firstName(faker().name().firstName())
-                .lastName(faker().name().lastName())
-                .email(faker().internet().emailAddress())
+                .firstName(faker.name().firstName())
+                .lastName(faker.name().lastName())
+                .email(faker.internet().emailAddress())
                 .password("short")
                 .passwordConfirmation("short")
                 .build();

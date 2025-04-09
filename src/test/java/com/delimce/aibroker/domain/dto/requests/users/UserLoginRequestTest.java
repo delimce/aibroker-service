@@ -6,19 +6,17 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.delimce.aibroker.utils.TestHandler;
-
+import com.github.javafaker.Faker;
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserLoginRequestTest extends TestHandler {
+class UserLoginRequestTest {
 
     private Validator validator;
-    private static final String VALID_EMAIL = faker().internet().emailAddress();
-    private static final String VALID_PASSWORD = faker().internet().password();
+    private static final Faker faker = new Faker();
+    private static final String VALID_EMAIL = faker.internet().emailAddress();
+    private static final String VALID_PASSWORD = faker.internet().password();
 
-    @Override
     @BeforeEach
     public void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
