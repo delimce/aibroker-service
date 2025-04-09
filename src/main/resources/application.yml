@@ -1,0 +1,33 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /v1
+
+spring:
+  application:
+    name: aibroker-service
+  datasource:
+    url: ${SPRING.DATASOURCE.URL}
+    username: ${SPRING.DATASOURCE.USERNAME}
+    password: ${SPRING.DATASOURCE.PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  main:
+    allow-bean-definition-overriding: true
+
+application:
+  security:
+    jwt:
+      secret-key: ${SPRING.SECURITY.JWT.SECRET_KEY}
+      expiration: ${SPRING.SECURITY.JWT.EXPIRATION}
