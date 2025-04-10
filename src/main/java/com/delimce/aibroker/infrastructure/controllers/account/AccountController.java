@@ -36,7 +36,7 @@ public class AccountController extends BaseController {
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginRequest request) {
         try {
             UserLoggedResponse response = accountLoginService.execute(request);
-            return ResponseEntity.status(HttpStatus.OK).body(responseOk(response));
+            return ResponseEntity.ok(responseOk(response));
         } catch (UserIsNotActiveException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(responseError(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
@@ -51,9 +51,9 @@ public class AccountController extends BaseController {
     public ResponseEntity<ApiResponse> register(@Valid @RequestBody UserRegistrationRequest request) {
         try {
             UserCreatedResponse userCreated = accountRegisterService.execute(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(responseCreated(userCreated));
+            return ResponseEntity.ok(responseCreated(userCreated));
         } catch (UserAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseError(e.getMessage()));
+            return ResponseEntity.badRequest().body(responseError(e.getMessage()));
         } catch (IllegalArgumentException e) {
             return illegalArgumentExceptionResponse(e);
         } catch (Exception e) {
