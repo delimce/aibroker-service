@@ -4,11 +4,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.delimce.aibroker.application.account.AccountLoginService;
 import com.delimce.aibroker.application.account.AccountRegisterService;
+import com.delimce.aibroker.application.account.AccountVerifiedService;
 import com.delimce.aibroker.domain.dto.ApiResponse;
 import com.delimce.aibroker.domain.dto.requests.users.UserLoginRequest;
 import com.delimce.aibroker.domain.dto.requests.users.UserRegistrationRequest;
 import com.delimce.aibroker.domain.dto.responses.users.UserCreatedResponse;
 import com.delimce.aibroker.domain.dto.responses.users.UserLoggedResponse;
+import com.delimce.aibroker.domain.dto.responses.users.UserMinDetail;
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
 import com.delimce.aibroker.domain.exceptions.account.UserIsNotActiveException;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
@@ -21,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/account")
@@ -31,6 +35,9 @@ public class AccountController extends BaseController {
 
     @Autowired
     private AccountLoginService accountLoginService;
+
+    @Autowired
+    private AccountVerifiedService accountVerifiedService;
 
     @PostMapping("/auth")
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginRequest request) {
@@ -61,4 +68,15 @@ public class AccountController extends BaseController {
         }
     }
 
+    @GetMapping("/verify/{token}")
+    public ResponseEntity<ApiResponse> verify(@PathVariable String token) {
+        try {
+            UserMinDetail response = accountVerifiedService.execute(token);
+            return ResponseEntity.ok(responseOk(response));
+        } catch (IllegalArgumentException e) {
+            return illegalArgumentExceptionResponse(e);
+        } catch (Exception e) {
+            return unhandledExceptionResponse(e);
+        }
+    }
 }

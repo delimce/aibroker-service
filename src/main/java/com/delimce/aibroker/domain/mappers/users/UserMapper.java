@@ -2,13 +2,13 @@ package com.delimce.aibroker.domain.mappers.users;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import com.delimce.aibroker.domain.dto.responses.users.UserCreatedResponse;
 import com.delimce.aibroker.domain.entities.User;
 
 import com.delimce.aibroker.domain.dto.responses.users.UserListResponse;
+import com.delimce.aibroker.domain.dto.responses.users.UserMinDetail;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -18,4 +18,6 @@ public interface UserMapper {
     UserCreatedResponse userToUserCreatedResponse(User user);
 
     UserListResponse userToUserListResponse(User user);
+
+    UserMinDetail userToUserMinDetail(User user);
 }
