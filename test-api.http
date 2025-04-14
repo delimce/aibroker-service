@@ -1,0 +1,41 @@
+### Variables
+@baseUrl = http://localhost:8083/v1
+@authToken = 
+
+### Health Check
+GET {{baseUrl}}/health
+Accept: application/json
+
+### Register a new user
+POST {{baseUrl}}/account/register
+Content-Type: application/json
+
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "password": "password123",
+    "passwordConfirmation": "password123"
+}
+
+### Login
+# @name login
+POST {{baseUrl}}/account/auth
+Content-Type: application/json
+
+{
+    "email": "john.doe@example.com",
+    "password": "password123"
+}
+
+### Save the auth token from login response
+{% 
+    if (login.response.body.info && login.response.body.info.token) {
+        client.global.set("authToken", login.response.body.info.token);
+    }
+%}
+
+### Get all users (Protected endpoint - requires authentication)
+GET {{baseUrl}}/users/all
+Authorization: Bearer {{authToken}}
+Accept: application/json
