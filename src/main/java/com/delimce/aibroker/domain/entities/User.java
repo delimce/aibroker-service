@@ -47,6 +47,9 @@ public class User {
     @Column(nullable = false, length = 130)
     private String password;
 
+    @Column(nullable = true, length = 255)
+    private String tempToken;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

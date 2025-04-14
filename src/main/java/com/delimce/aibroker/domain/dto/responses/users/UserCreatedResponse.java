@@ -6,5 +6,6 @@ public record UserCreatedResponse(
         String name,
         String lastName,
         String email,
+        String token,
         LocalDateTime createdAt) {
 }
