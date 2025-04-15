@@ -35,10 +35,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain2(HttpSecurity http) throws Exception {
         http.sessionManagement(sessionManagement -> sessionManagement
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(WHITELISTED_URLS).permitAll() // Allow whitelisted URLs
                         .anyRequest().authenticated()) // Require authentication for all other requests
-                .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
