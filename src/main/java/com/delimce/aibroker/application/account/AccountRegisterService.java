@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
 import com.delimce.aibroker.domain.mappers.users.UserMapper;
+import com.delimce.aibroker.domain.ports.JwtTokenInterface;
 
 @Service
 public class AccountRegisterService {
@@ -23,6 +24,9 @@ public class AccountRegisterService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private JwtTokenInterface jwtTokenInterface;
 
     public UserCreatedResponse execute(UserRegistrationRequest request)
             throws UserAlreadyExistsException,
@@ -42,6 +46,9 @@ public class AccountRegisterService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
+
+        String token = jwtTokenInterface.generateToken(user);
+        user.setTempToken(token);
 
         return userMapper.userToUserCreatedResponse(userRepository.save(user));
     }

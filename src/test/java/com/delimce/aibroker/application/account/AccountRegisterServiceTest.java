@@ -15,6 +15,7 @@ import com.delimce.aibroker.domain.dto.responses.users.UserCreatedResponse;
 import com.delimce.aibroker.domain.entities.User;
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
 import com.delimce.aibroker.domain.mappers.users.UserMapper;
+import com.delimce.aibroker.domain.ports.JwtTokenInterface;
 import com.delimce.aibroker.domain.repositories.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,6 +26,9 @@ public class AccountRegisterServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtTokenInterface jwtTokenInterface;
 
     @Mock
     private UserMapper userMapper;
@@ -56,6 +60,7 @@ public class AccountRegisterServiceTest {
                 user.getName(),
                 user.getLastName(),
                 user.getEmail(),
+                user.getTempToken(),
                 user.getCreatedAt()
                 );
     }

@@ -28,18 +28,17 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/health",
-            "/account/auth",
-            "/account/register"
+            "/account/**"
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain2(HttpSecurity http) throws Exception {
         http.sessionManagement(sessionManagement -> sessionManagement
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(WHITELISTED_URLS).permitAll() // Allow whitelisted URLs
-                        .anyRequest().authenticated())
-                .csrf(AbstractHttpConfigurer::disable)
+                        .anyRequest().authenticated()) // Require authentication for all other requests
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

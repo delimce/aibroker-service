@@ -1,6 +1,7 @@
 package com.delimce.aibroker.config;
 
 import com.delimce.aibroker.domain.entities.User;
+import com.delimce.aibroker.domain.enums.UserStatus;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
 import com.delimce.aibroker.domain.repositories.UserRepository;
 
@@ -44,10 +45,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         userEmail = jwtService.extractEmail(jwt);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userRepository.findByEmail(userEmail);
+
+            User user = userRepository.findUserByEmailAndStatus(userEmail, UserStatus.ACTIVE);
 
             if ((user != null) && (jwtService.isTokenValid(jwt, user))) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null);
+                // Create authentication with empty authorities list since User doesn't
+                // implement UserDetails
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        user,
+                        null,
+                        java.util.Collections.emptyList() // Use empty list instead of user.getAuthorities()
+                );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

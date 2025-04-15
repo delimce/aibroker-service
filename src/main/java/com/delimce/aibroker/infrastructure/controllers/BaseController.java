@@ -68,7 +68,7 @@ public class BaseController extends ResponseEntityExceptionHandler
 
     protected ResponseEntity<ApiResponse> illegalArgumentExceptionResponse(
             IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.badRequest()
                 .body(responseError(e.getMessage()));
     }
 
