@@ -2,10 +2,8 @@ package com.delimce.aibroker.domain.dto.responses.users;
 
 import java.time.LocalDateTime;
 
-public record UserCreatedResponse(
-        String name,
-        String lastName,
+public record UserMinDetail(
         String email,
-        String token,
         LocalDateTime createdAt) {
+
 }
