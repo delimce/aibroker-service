@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.delimce.aibroker.domain.dto.responses.users.UserMinDetail;
 import com.delimce.aibroker.domain.entities.User;
 import com.delimce.aibroker.domain.enums.UserStatus;
+import com.delimce.aibroker.domain.exceptions.security.JwtTokenException;
 import com.delimce.aibroker.domain.mappers.users.UserMapper;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
 import com.delimce.aibroker.domain.repositories.UserRepository;
@@ -22,8 +23,10 @@ public class AccountVerifiedService {
     @Autowired
     private UserMapper userMapper;
 
-    public UserMinDetail execute(String token) {
+    public UserMinDetail execute(String token) throws JwtTokenException {
+
         String email = jwtTokenInterface.extractEmail(token);
+
         User user = userRepository.findByEmail(email);
 
         if (user == null) {

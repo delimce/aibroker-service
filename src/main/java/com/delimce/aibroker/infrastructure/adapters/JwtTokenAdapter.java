@@ -1,6 +1,7 @@
 package com.delimce.aibroker.infrastructure.adapters;
 
 import com.delimce.aibroker.domain.entities.User;
+import com.delimce.aibroker.domain.exceptions.security.JwtTokenException;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -26,28 +27,37 @@ public class JwtTokenAdapter implements JwtTokenInterface {
     private long jwtExpiration;
 
     @Override
-    public String extractEmail(String token) {
+    public String extractEmail(String token) throws JwtTokenException {
         return extractClaim(token, Claims::getSubject);
     }
 
     @Override
-    public Date extractExpiration(String token) {
+    public Date extractExpiration(String token) throws JwtTokenException {
         return extractClaim(token, Claims::getExpiration);
     }
 
     @Override
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) throws JwtTokenException {
+        try {
+            final Claims claims = extractAllClaims(token);
+            return claimsResolver.apply(claims);
+        } catch (Exception e) {
+            throw new JwtTokenException();
+        }
     }
 
     @Override
-    public Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    public Claims extractAllClaims(String token) throws JwtTokenException {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            throw new JwtTokenException();
+        }
+
     }
 
     @Override
@@ -67,12 +77,12 @@ public class JwtTokenAdapter implements JwtTokenInterface {
     }
 
     @Override
-    public boolean isTokenValid(String token, User userDetails) {
+    public boolean isTokenValid(String token, User userDetails) throws JwtTokenException {
         final String email = extractEmail(token);
         return (email.equals(userDetails.getEmail()) && !isTokenExpired(token));
     }
 
-    private boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) throws JwtTokenException {
         return extractExpiration(token).before(new Date());
     }
 
