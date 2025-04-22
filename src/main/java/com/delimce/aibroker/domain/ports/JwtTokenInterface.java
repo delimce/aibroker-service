@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 import com.delimce.aibroker.domain.entities.User;
+import com.delimce.aibroker.domain.exceptions.security.JwtTokenException;
 
 public interface JwtTokenInterface {
 
@@ -14,7 +15,7 @@ public interface JwtTokenInterface {
      * @param token JWT token
      * @return extracted email
      */
-    String extractEmail(String token);
+    String extractEmail(String token) throws JwtTokenException;
 
     /**
      * Extract expiration date from JWT token
@@ -22,7 +23,7 @@ public interface JwtTokenInterface {
      * @param token JWT token
      * @return extracted expiration date
      */
-    Date extractExpiration(String token);
+    Date extractExpiration(String token) throws JwtTokenException;
 
     /**
      * Extract specific claim from JWT token
@@ -31,7 +32,7 @@ public interface JwtTokenInterface {
      * @param claimsResolver function to extract specific claim
      * @return extracted claim
      */
-    <T> T extractClaim(String token, Function<Claims, T> claimsResolver);
+    <T> T extractClaim(String token, Function<Claims, T> claimsResolver) throws JwtTokenException;
 
     /**
      * Extract all claims from JWT token
@@ -39,7 +40,7 @@ public interface JwtTokenInterface {
      * @param token JWT token
      * @return all claims
      */
-    Claims extractAllClaims(String token);
+    Claims extractAllClaims(String token) throws JwtTokenException;
 
     /**
      * Generate JWT token for user
@@ -66,6 +67,6 @@ public interface JwtTokenInterface {
      * @param userDetails user details
      * @return true if token is valid
      */
-    boolean isTokenValid(String token, User userDetails);
+    boolean isTokenValid(String token, User userDetails) throws JwtTokenException;
 
 }

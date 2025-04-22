@@ -14,6 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.delimce.aibroker.domain.dto.ApiResponse;
+import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
 import com.delimce.aibroker.domain.ports.LoggerInterface;
 
 @ControllerAdvice
@@ -77,6 +78,12 @@ public class BaseController extends ResponseEntityExceptionHandler
         logger.error("Unhandled exception: {}", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(responseError("An error occurred during execution", 500));
+    }
+
+    protected ResponseEntity<ApiResponse> unAuthorizedExceptionResponse(
+            SecurityValidationException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(responseError(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
     }
 
 }

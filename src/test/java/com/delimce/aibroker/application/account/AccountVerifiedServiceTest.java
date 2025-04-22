@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import com.delimce.aibroker.domain.dto.responses.users.UserMinDetail;
 import com.delimce.aibroker.domain.entities.User;
 import com.delimce.aibroker.domain.enums.UserStatus;
+import com.delimce.aibroker.domain.exceptions.security.JwtTokenException;
 import com.delimce.aibroker.domain.mappers.users.UserMapper;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
 import com.delimce.aibroker.domain.repositories.UserRepository;
@@ -39,7 +40,7 @@ class AccountVerifiedServiceTest {
     }
 
     @Test
-    void shouldActivateUserSuccessfully() {
+    void shouldActivateUserSuccessfully() throws JwtTokenException {
         // Arrange
         User pendingUser = User.builder()
                 .email(TEST_EMAIL)
@@ -69,7 +70,7 @@ class AccountVerifiedServiceTest {
     }
 
     @Test
-    void shouldNotChangeStatusForActiveUser() {
+    void shouldNotChangeStatusForActiveUser() throws JwtTokenException {
         // Arrange
         User activeUser = User.builder()
                 .email(TEST_EMAIL)
@@ -93,7 +94,7 @@ class AccountVerifiedServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionForInvalidToken() {
+    void shouldThrowExceptionForInvalidToken() throws JwtTokenException {
         // Arrange
         when(jwtTokenInterface.extractEmail(TEST_TOKEN)).thenReturn(TEST_EMAIL);
         when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(null);
@@ -105,7 +106,7 @@ class AccountVerifiedServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionForExpiredToken() {
+    void shouldThrowExceptionForExpiredToken() throws JwtTokenException {
         // Arrange
         User user = User.builder()
                 .email(TEST_EMAIL)
