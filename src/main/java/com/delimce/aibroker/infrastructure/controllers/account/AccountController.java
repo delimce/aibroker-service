@@ -11,6 +11,7 @@ import com.delimce.aibroker.domain.dto.requests.users.UserRegistrationRequest;
 import com.delimce.aibroker.domain.dto.responses.users.UserCreatedResponse;
 import com.delimce.aibroker.domain.dto.responses.users.UserLoggedResponse;
 import com.delimce.aibroker.domain.dto.responses.users.UserMinDetail;
+import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
 import com.delimce.aibroker.domain.exceptions.account.UserIsNotActiveException;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
@@ -75,6 +76,8 @@ public class AccountController extends BaseController {
             return ResponseEntity.ok(responseOk(response));
         } catch (IllegalArgumentException e) {
             return illegalArgumentExceptionResponse(e);
+        } catch (SecurityValidationException e) {
+            return unAuthorizedExceptionResponse(e);
         } catch (Exception e) {
             return unhandledExceptionResponse(e);
         }

@@ -2,6 +2,8 @@ package com.delimce.aibroker.infrastructure.adapters;
 
 import com.delimce.aibroker.domain.entities.User;
 import com.delimce.aibroker.domain.enums.UserStatus;
+import com.delimce.aibroker.domain.exceptions.security.JwtTokenException;
+
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +51,7 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void generateToken_WithExtraClaims_ShouldIncludeClaimsInToken() {
+    void generateToken_WithExtraClaims_ShouldIncludeClaimsInToken() throws JwtTokenException {
         // given
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", "ADMIN");
@@ -66,7 +68,7 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void extractEmail_ShouldReturnCorrectEmail() {
+    void extractEmail_ShouldReturnCorrectEmail() throws JwtTokenException {
         // given
         String token = jwtTokenAdapter.generateToken(testUser);
 
@@ -78,7 +80,7 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void extractExpiration_ShouldReturnFutureDate() {
+    void extractExpiration_ShouldReturnFutureDate() throws JwtTokenException {
         // given
         String token = jwtTokenAdapter.generateToken(testUser);
 
@@ -91,7 +93,7 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void extractClaim_WithCustomClaimResolver_ShouldReturnCorrectClaim() {
+    void extractClaim_WithCustomClaimResolver_ShouldReturnCorrectClaim() throws JwtTokenException {
         // given
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("customClaim", "customValue");
@@ -106,7 +108,7 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void extractAllClaims_ShouldReturnAllClaimsInToken() {
+    void extractAllClaims_ShouldReturnAllClaimsInToken() throws JwtTokenException {
         // given
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", "USER");
@@ -122,7 +124,7 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void isTokenValid_WithValidTokenAndMatchingUser_ShouldReturnTrue() {
+    void isTokenValid_WithValidTokenAndMatchingUser_ShouldReturnTrue() throws JwtTokenException {
         // given
         String token = jwtTokenAdapter.generateToken(testUser);
 
@@ -134,7 +136,7 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void isTokenValid_WithValidTokenButDifferentUser_ShouldReturnFalse() {
+    void isTokenValid_WithValidTokenButDifferentUser_ShouldReturnFalse() throws JwtTokenException {
         // given
         String token = jwtTokenAdapter.generateToken(testUser);
         User differentUser = User.builder()
@@ -149,11 +151,11 @@ class JwtTokenAdapterTest {
     }
 
     @Test
-    void isTokenValid_WithExpiredToken_ShouldReturnFalse() throws Exception {
+    void isTokenValid_WithExpiredToken_ShouldReturnFalse() throws Exception, JwtTokenException {
         // given
         JwtTokenAdapter spyAdapter = spy(jwtTokenAdapter);
         String token = jwtTokenAdapter.generateToken(testUser);
-        
+
         // Mock the extractExpiration method to return a past date
         Date pastDate = new Date(System.currentTimeMillis() - 1000);
         doReturn(pastDate).when(spyAdapter).extractExpiration(token);
