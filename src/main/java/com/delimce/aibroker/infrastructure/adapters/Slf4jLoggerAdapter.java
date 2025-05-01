@@ -21,7 +21,10 @@ public class Slf4jLoggerAdapter implements LoggerInterface {
     }
 
     @Override
-    public void info(String message) {
+    public void info(String message, Object... args) {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
         logger.info(message);
     }
 
