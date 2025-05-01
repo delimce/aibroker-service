@@ -6,4 +6,6 @@ import com.delimce.aibroker.domain.entities.Model;
 
 public interface ModelRepository extends JpaRepository<Model, Long> {
 
+    Model findByName(String name);
+    
 }

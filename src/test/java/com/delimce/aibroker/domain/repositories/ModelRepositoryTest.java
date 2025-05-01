@@ -83,4 +83,37 @@ public class ModelRepositoryTest extends TestHandler {
         // Then
         assertThat(deleted).isEmpty();
     }
+
+    @Test
+    public void shouldFindModelByName() {
+        // Given
+        String modelName = "GPT-3.5";
+        Model model = new Model();
+        model.setName(modelName);
+        model.setType(ModelType.CHAT);
+        model.setProvider(aiProvider);
+        model.setEnabled(true);
+        modelRepository.save(model);
+
+        // When
+        Model foundModel = modelRepository.findByName(modelName);
+
+        // Then
+        assertThat(foundModel).isNotNull();
+        assertThat(foundModel.getName()).isEqualTo(modelName);
+        assertThat(foundModel.getProvider().getId()).isEqualTo(aiProvider.getId());
+    }
+
+    @Test
+    public void shouldReturnNullWhenModelNameNotFound() {
+        // Given
+        String nonExistentName = "NonExistentModel";
+
+        // When
+        Model foundModel = modelRepository.findByName(nonExistentName);
+
+        // Then
+        assertThat(foundModel).isNull();
+    }
+
 }
