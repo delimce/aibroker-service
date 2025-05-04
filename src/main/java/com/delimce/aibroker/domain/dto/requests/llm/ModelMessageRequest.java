@@ -1,5 +1,6 @@
 package com.delimce.aibroker.domain.dto.requests.llm;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,10 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class ModelMessageRequest {
-    String role;
+
+    @Builder.Default
+    String role = "user";
+
+    @NotBlank(message = "Content is required")
     String content;
 }
