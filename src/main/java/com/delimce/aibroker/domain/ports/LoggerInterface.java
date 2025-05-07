@@ -2,7 +2,7 @@ package com.delimce.aibroker.domain.ports;
 
 public interface LoggerInterface {
 
-    public void info(String message);
+    public void info(String message, Object... args);
 
     public void warn(String message);
 

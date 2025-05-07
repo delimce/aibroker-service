@@ -46,3 +46,18 @@ Content-Type: application/json
 GET {{baseUrl}}/users/all
 Authorization: Bearer {{authToken}}
 Accept: application/json
+
+### Chat with LLM (Protected endpoint - requires authentication)
+POST {{baseUrl}}/llm/chat
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "model": "deepseek-chat",
+    "messages": [
+        {
+            "role": "user",
+            "content": "Hello, how are you?"
+        }
+    ]
+}
