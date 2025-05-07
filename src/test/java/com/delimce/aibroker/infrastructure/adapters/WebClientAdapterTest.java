@@ -77,7 +77,7 @@ class WebClientAdapterTest {
                 .thenReturn(postRequestHeadersSpecMock);
 
         // Initialize the adapter
-        webClientAdapter = new WebClientAdapter(webClientBuilderMock, loggerMock);
+        webClientAdapter = new WebClientAdapter(webClientBuilderMock, loggerMock, objectMapper);
     }
 
     // --- Ping Tests (Adjusted for clarity and potential fixes) ---

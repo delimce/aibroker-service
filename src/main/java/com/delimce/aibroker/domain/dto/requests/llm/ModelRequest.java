@@ -16,7 +16,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ModelRequest {
     @NotBlank(message = "Model is required")
-    @Size(min = 12, message = "Model must be at least 12 character long")
+    @Size(min = 10, message = "Model must be at least 10 character long")
     String model;
 
     @Builder.Default

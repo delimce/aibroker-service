@@ -18,7 +18,7 @@ public class LlmChatService {
     @Autowired
     private AiApiClientInterface client;
 
-    public String execute(ModelRequest request) {
+    public ModelChatResponse execute(ModelRequest request) {
 
         Model model = modelRepository.findByName(request.getModel());
         if (model == null) {
@@ -31,8 +31,11 @@ public class LlmChatService {
             throw new IllegalArgumentException("Chat response is null");
         }
 
-        return "ok";
+        return chatResponse;
 
+    }
+
+    protected void processStats(ModelChatResponse chatResponse) {
     }
 
 }
