@@ -20,11 +20,13 @@ public class WebClientAdapter implements AiApiClientInterface {
 
     private final LoggerInterface logger;
     private final WebClient webClient;
+    private final ObjectMapper objectMapper;
     private static final String PING_URL = "https://httpbin.org/get";
 
-    public WebClientAdapter(WebClient.Builder webClientBuilder, LoggerInterface logger) {
+    public WebClientAdapter(WebClient.Builder webClientBuilder, LoggerInterface logger, ObjectMapper objectMapper) {
         this.webClient = webClientBuilder.build();
         this.logger = logger;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -116,7 +118,6 @@ public class WebClientAdapter implements AiApiClientInterface {
             }
 
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
                 // Parse the JSON string into ModelChatResponse
                 ModelChatResponse chatResponse = objectMapper.readValue(responseBodyString,
                         ModelChatResponse.class);
