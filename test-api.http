@@ -61,3 +61,10 @@ Content-Type: application/json
         }
     ]
 }
+
+### get list of models endpoint
+GET {{baseUrl}}/llm/list
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
