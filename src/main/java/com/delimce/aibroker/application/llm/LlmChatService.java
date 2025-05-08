@@ -25,6 +25,10 @@ public class LlmChatService {
             throw new IllegalArgumentException("Model not found");
         }
 
+        if (!model.isEnabled()) {
+            throw new IllegalArgumentException("Model is not enabled");
+        }
+
         ModelChatResponse chatResponse = client.requestToModel(model, request);
 
         if (chatResponse == null) {
