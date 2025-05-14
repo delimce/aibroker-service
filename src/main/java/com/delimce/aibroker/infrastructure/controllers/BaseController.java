@@ -3,7 +3,6 @@ package com.delimce.aibroker.infrastructure.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -21,8 +20,11 @@ import com.delimce.aibroker.domain.ports.LoggerInterface;
 public class BaseController extends ResponseEntityExceptionHandler
         implements ControllerInterface {
 
-    @Autowired
-    private LoggerInterface logger;
+    private final LoggerInterface logger;
+
+    public BaseController(LoggerInterface logger) {
+        this.logger = logger;
+    }
 
     @Override
     public ApiResponse responseOk(Object data) {

@@ -1,6 +1,5 @@
 package com.delimce.aibroker.application.llm;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.delimce.aibroker.domain.entities.Model;
@@ -12,11 +11,13 @@ import com.delimce.aibroker.domain.dto.responses.llm.ModelChatResponse;
 @Service
 public class LlmChatService {
 
-    @Autowired
-    private ModelRepository modelRepository;
+    private final ModelRepository modelRepository;
+    private final AiApiClientInterface client;
 
-    @Autowired
-    private AiApiClientInterface client;
+    public LlmChatService(ModelRepository modelRepository, AiApiClientInterface client) {
+        this.modelRepository = modelRepository;
+        this.client = client;
+    }
 
     public ModelChatResponse execute(ModelRequest request) {
 
