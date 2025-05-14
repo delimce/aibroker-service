@@ -1,6 +1,5 @@
 package com.delimce.aibroker.application.account;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,14 +13,18 @@ import com.delimce.aibroker.domain.repositories.UserRepository;
 @Service
 public class AccountLoginService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenInterface jwtTokenAdapter;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtTokenInterface jwtTokenAdapter;
+    public AccountLoginService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtTokenInterface jwtTokenAdapter) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenAdapter = jwtTokenAdapter;
+    }
 
     public UserLoggedResponse execute(UserLoginRequest request) throws UserIsNotActiveException {
         var user = userRepository.findByEmail(request.getEmail());

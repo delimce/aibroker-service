@@ -1,6 +1,5 @@
 package com.delimce.aibroker.application.account;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.delimce.aibroker.domain.dto.responses.users.UserMinDetail;
@@ -14,14 +13,17 @@ import com.delimce.aibroker.domain.repositories.UserRepository;
 @Service
 public class AccountVerifiedService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final JwtTokenInterface jwtTokenInterface;
+    private final UserMapper userMapper;
 
-    @Autowired
-    private JwtTokenInterface jwtTokenInterface;
-
-    @Autowired
-    private UserMapper userMapper;
+    public AccountVerifiedService(UserRepository userRepository,
+            JwtTokenInterface jwtTokenInterface,
+            UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.jwtTokenInterface = jwtTokenInterface;
+        this.userMapper = userMapper;
+    }
 
     public UserMinDetail execute(String token) throws JwtTokenException {
 

@@ -15,10 +15,10 @@ import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
 import com.delimce.aibroker.domain.exceptions.account.UserIsNotActiveException;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
+import com.delimce.aibroker.domain.ports.LoggerInterface;
 
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,14 +31,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/account")
 public class AccountController extends BaseController {
 
-    @Autowired
-    private AccountRegisterService accountRegisterService;
+    private final AccountRegisterService accountRegisterService;
+    private final AccountLoginService accountLoginService;
+    private final AccountVerifiedService accountVerifiedService;
 
-    @Autowired
-    private AccountLoginService accountLoginService;
-
-    @Autowired
-    private AccountVerifiedService accountVerifiedService;
+    public AccountController(AccountRegisterService accountRegisterService,
+            AccountLoginService accountLoginService,
+            AccountVerifiedService accountVerifiedService,
+            LoggerInterface logger) {
+        super(logger);
+        this.accountRegisterService = accountRegisterService;
+        this.accountLoginService = accountLoginService;
+        this.accountVerifiedService = accountVerifiedService;
+    }
 
     @PostMapping("/auth")
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginRequest request) {
