@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.delimce.aibroker.application.llm.ModelListService;
 import com.delimce.aibroker.domain.dto.ApiResponse;
+import com.delimce.aibroker.domain.ports.LoggerInterface;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
 
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,8 @@ public class ModelController extends BaseController {
 
     private final ModelListService modelListService;
 
-    public ModelController(ModelListService modelListService) {
+    public ModelController(ModelListService modelListService, LoggerInterface logger) {
+        super(logger);
         this.modelListService = modelListService;
     }
 

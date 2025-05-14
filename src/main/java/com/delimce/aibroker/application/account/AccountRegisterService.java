@@ -1,7 +1,5 @@
 package com.delimce.aibroker.application.account;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.delimce.aibroker.domain.dto.requests.users.UserRegistrationRequest;
 import com.delimce.aibroker.domain.dto.responses.users.UserCreatedResponse;
 import com.delimce.aibroker.domain.entities.User;
@@ -16,17 +14,20 @@ import com.delimce.aibroker.domain.ports.JwtTokenInterface;
 @Service
 public class AccountRegisterService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final JwtTokenInterface jwtTokenInterface;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private JwtTokenInterface jwtTokenInterface;
+    public AccountRegisterService(UserRepository userRepository,
+                                  PasswordEncoder passwordEncoder,
+                                  UserMapper userMapper,
+                                  JwtTokenInterface jwtTokenInterface) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
+        this.jwtTokenInterface = jwtTokenInterface;
+    }
 
     public UserCreatedResponse execute(UserRegistrationRequest request)
             throws UserAlreadyExistsException,
