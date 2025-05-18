@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-@Table(name = "tbl_model_request")
+@Table(name = "tbl_user_request")
 public class UserRequest {
 
     @Id
