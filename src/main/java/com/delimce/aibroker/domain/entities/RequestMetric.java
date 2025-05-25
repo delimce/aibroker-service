@@ -36,4 +36,18 @@ public class RequestMetric {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "prompt_tokens")
+    private Integer promptTokens;
+
+    @Column(name = "completion_tokens")
+    private Integer completionTokens;
+
+    @Column(name = "total_tokens")
+    private Integer totalTokens;
+
+    @Column(name = "prompt_cache_hit_tokens")
+    private Integer promptCacheHitTokens;
+
+    @Column(name = "prompt_cache_miss_tokens")
+    private Integer promptCacheMissTokens;
 }
