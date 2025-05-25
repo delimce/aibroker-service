@@ -11,6 +11,7 @@ import com.delimce.aibroker.domain.enums.ModelType;
 import com.delimce.aibroker.domain.enums.UserStatus;
 import com.delimce.aibroker.domain.ports.AiApiClientInterface;
 import com.delimce.aibroker.domain.repositories.ModelRepository;
+import com.delimce.aibroker.domain.repositories.RequestMetricRepository;
 import com.delimce.aibroker.domain.repositories.UserRequestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,9 @@ class LlmChatServiceTest {
     private UserRequestRepository userRequestRepository;
 
     @Mock
+    private RequestMetricRepository requestMetricRepository;
+
+    @Mock
     private AiApiClientInterface client;
 
     private User testUser;
@@ -46,9 +50,10 @@ class LlmChatServiceTest {
 
         public TestLlmChatService(ModelRepository modelRepository,
                 UserRequestRepository userRequestRepository,
+                RequestMetricRepository requestMetricRepository,
                 AiApiClientInterface client,
                 User mockUser) {
-            super(modelRepository, userRequestRepository, client);
+            super(modelRepository, userRequestRepository, requestMetricRepository, client);
             this.mockUser = mockUser;
         }
 
@@ -73,6 +78,7 @@ class LlmChatServiceTest {
         llmChatService = new TestLlmChatService(
                 modelRepository,
                 userRequestRepository,
+                requestMetricRepository,
                 client,
                 testUser);
     }
@@ -223,5 +229,93 @@ class LlmChatServiceTest {
             llmChatService.execute(request);
         });
         assertEquals("Database error", exception.getMessage());
+    }
+
+    @Test
+    void execute_shouldSaveUsageMetrics_whenResponseHasUsageData() {
+        // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
+        ModelRequest request = new ModelRequest();
+        request.setModel("TestModel");
+        request.setMessages(messages);
+
+        Provider provider = new Provider();
+        provider.setName("TestProvider");
+
+        Model model = new Model();
+        model.setName("TestModel");
+        model.setProvider(provider);
+        model.setType(ModelType.CHAT);
+        model.setEnabled(true);
+        model.setCreatedAt(LocalDateTime.now());
+
+        // Create a response with usage data
+        ModelChatResponse expectedResponse = new ModelChatResponse();
+        com.delimce.aibroker.domain.dto.responses.llm.Usage usage = new com.delimce.aibroker.domain.dto.responses.llm.Usage();
+        usage.setPrompt_tokens(100);
+        usage.setCompletion_tokens(50);
+        usage.setTotal_tokens(150);
+        usage.setPrompt_cache_hit_tokens(20);
+        usage.setPrompt_cache_miss_tokens(80);
+        expectedResponse.setUsage(usage);
+
+        when(modelRepository.findByName("TestModel")).thenReturn(model);
+        when(userRequestRepository.save(any(UserRequest.class))).thenAnswer(i -> i.getArgument(0));
+        when(client.requestToModel(model, request)).thenReturn(expectedResponse);
+        // Use mockito answer to capture the RequestMetric being saved
+        when(requestMetricRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        ModelChatResponse actualResponse = llmChatService.execute(request);
+
+        // Assert
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse, actualResponse);
+        verify(userRequestRepository).save(any(UserRequest.class));
+        verify(requestMetricRepository).save(any(com.delimce.aibroker.domain.entities.RequestMetric.class));
+    }
+
+    @Test
+    void execute_shouldNotSaveMetrics_whenResponseHasNoUsageData() {
+        // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
+        ModelRequest request = new ModelRequest();
+        request.setModel("TestModel");
+        request.setMessages(messages);
+
+        Provider provider = new Provider();
+        provider.setName("TestProvider");
+
+        Model model = new Model();
+        model.setName("TestModel");
+        model.setProvider(provider);
+        model.setType(ModelType.CHAT);
+        model.setEnabled(true);
+        model.setCreatedAt(LocalDateTime.now());
+
+        // Create a response with no usage data
+        ModelChatResponse expectedResponse = new ModelChatResponse();
+        // Explicitly set usage to null
+        expectedResponse.setUsage(null);
+
+        when(modelRepository.findByName("TestModel")).thenReturn(model);
+        when(userRequestRepository.save(any(UserRequest.class))).thenAnswer(i -> i.getArgument(0));
+        when(client.requestToModel(model, request)).thenReturn(expectedResponse);
+
+        // Act
+        ModelChatResponse actualResponse = llmChatService.execute(request);
+
+        // Assert
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse, actualResponse);
+        verify(userRequestRepository).save(any(UserRequest.class));
+        // Verify that requestMetricRepository.save is never called
+        verify(requestMetricRepository, org.mockito.Mockito.never()).save(any());
     }
 }

@@ -48,6 +48,13 @@ public class Model {
     @Column(nullable = false)
     private boolean enabled;
 
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,6)")
+    @Builder.Default
+    private float costToken = 0; // usd
+
+    @Column(nullable = true)
+    private String costTokenUnit; // ex: 1M -> million
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
