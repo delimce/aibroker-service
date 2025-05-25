@@ -1,21 +1,29 @@
 package com.delimce.aibroker.application.llm;
 
+import com.delimce.aibroker.domain.dto.requests.llm.ModelMessageRequest;
 import com.delimce.aibroker.domain.dto.requests.llm.ModelRequest;
 import com.delimce.aibroker.domain.dto.responses.llm.ModelChatResponse;
 import com.delimce.aibroker.domain.entities.Model;
 import com.delimce.aibroker.domain.entities.Provider;
+import com.delimce.aibroker.domain.entities.User;
+import com.delimce.aibroker.domain.entities.UserRequest;
 import com.delimce.aibroker.domain.enums.ModelType;
+import com.delimce.aibroker.domain.enums.UserStatus;
 import com.delimce.aibroker.domain.ports.AiApiClientInterface;
 import com.delimce.aibroker.domain.repositories.ModelRepository;
+import com.delimce.aibroker.domain.repositories.RequestMetricRepository;
+import com.delimce.aibroker.domain.repositories.UserRequestRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,16 +33,66 @@ class LlmChatServiceTest {
     private ModelRepository modelRepository;
 
     @Mock
+    private UserRequestRepository userRequestRepository;
+
+    @Mock
+    private RequestMetricRepository requestMetricRepository;
+
+    @Mock
     private AiApiClientInterface client;
 
-    @InjectMocks
-    private LlmChatService llmChatService;
+    private User testUser;
+    private TestLlmChatService llmChatService;
+
+    // Testable subclass that allows us to override the protected method
+    class TestLlmChatService extends LlmChatService {
+        private User mockUser;
+
+        public TestLlmChatService(ModelRepository modelRepository,
+                UserRequestRepository userRequestRepository,
+                RequestMetricRepository requestMetricRepository,
+                AiApiClientInterface client,
+                User mockUser) {
+            super(modelRepository, userRequestRepository, requestMetricRepository, client);
+            this.mockUser = mockUser;
+        }
+
+        @Override
+        protected User fetchAuthenticatedUser() {
+            return mockUser;
+        }
+    }
+
+    @BeforeEach
+    void setUp() {
+        // Create a test user for all tests
+        testUser = User.builder()
+                .id(1L)
+                .name("Test User")
+                .lastName("Doe")
+                .email("test@example.com")
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        // Initialize the service with our test user
+        llmChatService = new TestLlmChatService(
+                modelRepository,
+                userRequestRepository,
+                requestMetricRepository,
+                client,
+                testUser);
+    }
 
     @Test
     void execute_shouldReturnChatResponse_whenModelExistsAndIsEnabled() {
         // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
         ModelRequest request = new ModelRequest();
         request.setModel("TestModel");
+        request.setMessages(messages);
 
         Provider provider = new Provider();
         provider.setName("TestProvider");
@@ -50,6 +108,7 @@ class LlmChatServiceTest {
         // Populate expectedResponse as needed
 
         when(modelRepository.findByName("TestModel")).thenReturn(model);
+        when(userRequestRepository.save(any(UserRequest.class))).thenAnswer(i -> i.getArgument(0));
         when(client.requestToModel(model, request)).thenReturn(expectedResponse);
 
         // Act
@@ -58,13 +117,20 @@ class LlmChatServiceTest {
         // Assert
         assertNotNull(actualResponse);
         assertEquals(expectedResponse, actualResponse);
+        // Verify userRequestRepository.save was called once
+        verify(userRequestRepository).save(any(UserRequest.class));
     }
 
     @Test
     void execute_shouldThrowIllegalArgumentException_whenModelNotFound() {
         // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
         ModelRequest request = new ModelRequest();
         request.setModel("NonExistentModel");
+        request.setMessages(messages);
 
         when(modelRepository.findByName("NonExistentModel")).thenReturn(null);
 
@@ -78,8 +144,13 @@ class LlmChatServiceTest {
     @Test
     void execute_shouldThrowIllegalArgumentException_whenModelNotEnabled() {
         // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
         ModelRequest request = new ModelRequest();
         request.setModel("DisabledModel");
+        request.setMessages(messages);
 
         Model model = new Model();
         model.setName("DisabledModel");
@@ -97,8 +168,13 @@ class LlmChatServiceTest {
     @Test
     void execute_shouldThrowIllegalArgumentException_whenChatResponseIsNull() {
         // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
         ModelRequest request = new ModelRequest();
         request.setModel("TestModel");
+        request.setMessages(messages);
 
         Provider provider = new Provider();
         provider.setName("TestProvider");
@@ -111,6 +187,7 @@ class LlmChatServiceTest {
         model.setCreatedAt(LocalDateTime.now());
 
         when(modelRepository.findByName("TestModel")).thenReturn(model);
+        when(userRequestRepository.save(any(UserRequest.class))).thenAnswer(i -> i.getArgument(0));
         when(client.requestToModel(model, request)).thenReturn(null);
 
         // Act & Assert
@@ -118,5 +195,127 @@ class LlmChatServiceTest {
             llmChatService.execute(request);
         });
         assertEquals("Chat response is null", exception.getMessage());
+        // Verify userRequestRepository.save was called once
+        verify(userRequestRepository).save(any(UserRequest.class));
+    }
+
+    @Test
+    void execute_shouldRollbackTransaction_whenExceptionOccurs() {
+        // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
+        ModelRequest request = new ModelRequest();
+        request.setModel("TestModel");
+        request.setMessages(messages);
+
+        Provider provider = new Provider();
+        provider.setName("TestProvider");
+
+        Model model = new Model();
+        model.setName("TestModel");
+        model.setProvider(provider);
+        model.setType(ModelType.CHAT);
+        model.setEnabled(true);
+        model.setCreatedAt(LocalDateTime.now());
+
+        when(modelRepository.findByName("TestModel")).thenReturn(model);
+        // Simulate database error when saving
+        when(userRequestRepository.save(any(UserRequest.class))).thenThrow(new RuntimeException("Database error"));
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            llmChatService.execute(request);
+        });
+        assertEquals("Database error", exception.getMessage());
+    }
+
+    @Test
+    void execute_shouldSaveUsageMetrics_whenResponseHasUsageData() {
+        // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
+        ModelRequest request = new ModelRequest();
+        request.setModel("TestModel");
+        request.setMessages(messages);
+
+        Provider provider = new Provider();
+        provider.setName("TestProvider");
+
+        Model model = new Model();
+        model.setName("TestModel");
+        model.setProvider(provider);
+        model.setType(ModelType.CHAT);
+        model.setEnabled(true);
+        model.setCreatedAt(LocalDateTime.now());
+
+        // Create a response with usage data
+        ModelChatResponse expectedResponse = new ModelChatResponse();
+        com.delimce.aibroker.domain.dto.responses.llm.Usage usage = new com.delimce.aibroker.domain.dto.responses.llm.Usage();
+        usage.setPrompt_tokens(100);
+        usage.setCompletion_tokens(50);
+        usage.setTotal_tokens(150);
+        usage.setPrompt_cache_hit_tokens(20);
+        usage.setPrompt_cache_miss_tokens(80);
+        expectedResponse.setUsage(usage);
+
+        when(modelRepository.findByName("TestModel")).thenReturn(model);
+        when(userRequestRepository.save(any(UserRequest.class))).thenAnswer(i -> i.getArgument(0));
+        when(client.requestToModel(model, request)).thenReturn(expectedResponse);
+        // Use mockito answer to capture the RequestMetric being saved
+        when(requestMetricRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        ModelChatResponse actualResponse = llmChatService.execute(request);
+
+        // Assert
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse, actualResponse);
+        verify(userRequestRepository).save(any(UserRequest.class));
+        verify(requestMetricRepository).save(any(com.delimce.aibroker.domain.entities.RequestMetric.class));
+    }
+
+    @Test
+    void execute_shouldNotSaveMetrics_whenResponseHasNoUsageData() {
+        // Arrange
+        ModelMessageRequest[] messages = new ModelMessageRequest[] {
+                new ModelMessageRequest("user", "Hello, how are you?")
+        };
+
+        ModelRequest request = new ModelRequest();
+        request.setModel("TestModel");
+        request.setMessages(messages);
+
+        Provider provider = new Provider();
+        provider.setName("TestProvider");
+
+        Model model = new Model();
+        model.setName("TestModel");
+        model.setProvider(provider);
+        model.setType(ModelType.CHAT);
+        model.setEnabled(true);
+        model.setCreatedAt(LocalDateTime.now());
+
+        // Create a response with no usage data
+        ModelChatResponse expectedResponse = new ModelChatResponse();
+        // Explicitly set usage to null
+        expectedResponse.setUsage(null);
+
+        when(modelRepository.findByName("TestModel")).thenReturn(model);
+        when(userRequestRepository.save(any(UserRequest.class))).thenAnswer(i -> i.getArgument(0));
+        when(client.requestToModel(model, request)).thenReturn(expectedResponse);
+
+        // Act
+        ModelChatResponse actualResponse = llmChatService.execute(request);
+
+        // Assert
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse, actualResponse);
+        verify(userRequestRepository).save(any(UserRequest.class));
+        // Verify that requestMetricRepository.save is never called
+        verify(requestMetricRepository, org.mockito.Mockito.never()).save(any());
     }
 }
