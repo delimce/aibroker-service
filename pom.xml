@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.delimce</groupId>
 	<artifactId>aibroker-service</artifactId>
-	<version>0.0.8-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>aibroker-service</name>
 	<description>API suite for managing requests to AI LLM models</description>
 	<url/>
