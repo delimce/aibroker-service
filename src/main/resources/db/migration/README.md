@@ -33,17 +33,31 @@ To add a new migration:
 
 ## Commands
 
-You can also run Flyway commands manually using Maven:
+You can run Flyway commands manually using our custom script that automatically loads database configuration from your .env file. 
+Make sure the `flyway.sh` script has execute permissions by running `chmod +x flyway.sh` if needed:
 
 ```bash
 # See the migration status
-mvn flyway:info
+./flyway.sh info
 
 # Apply pending migrations
-mvn flyway:migrate
+./flyway.sh migrate
 
 # Clean the database (USE WITH CAUTION - DELETES ALL DATA)
-mvn flyway:clean
+./flyway.sh clean
+```
+
+Alternatively, if you prefer using Maven directly and specifying database parameters manually:
+
+```bash
+# See the migration status
+./mvnw flyway:info -Dflyway.url=jdbc:mysql://127.0.0.1:3307/aibroker_db -Dflyway.user=admin -Dflyway.password=admin
+
+# Apply pending migrations
+./mvnw flyway:migrate -Dflyway.url=jdbc:mysql://127.0.0.1:3307/aibroker_db -Dflyway.user=admin -Dflyway.password=admin
+
+# Clean the database (USE WITH CAUTION - DELETES ALL DATA)
+./mvnw flyway:clean -Dflyway.url=jdbc:mysql://127.0.0.1:3307/aibroker_db -Dflyway.user=admin -Dflyway.password=admin
 ```
 
 For more information, see the [Flyway documentation](https://flywaydb.org/documentation/).
