@@ -36,6 +36,11 @@ A middleware service that acts as an intelligent broker between applications and
     * Edit the `.env` file to configure your environment-specific settings.
      > **Note:** This approach is primarily intended for development and debugging purposes. For production environments, consider using a managed database service, environment vars setup or a more robust deployment strategy.
 
+3. **create database for testing**
+    * For integration tests involving the database, a test-specific configuration is used:    
+    * Database configurations for tests are specified in `src/main/resources/application-test.yml`
+    * Tests use a MySQL database named `aibroker_db_test` for testing
+
 ## Building
 ```bash
 ./mvnw clean package and create the executable JAR file, run the following command from the project root directory:
@@ -53,3 +58,21 @@ To run the unit tests, execute the following command:
 ## API Testing
 
 *   An HTTP client file `test-api.http` is included for testing API endpoints using tools like the VS Code REST Client extension.
+
+
+## Integration Testing
+
+
+2. **Running Database Integration Tests:**
+    ```bash
+    ./mvnw test -Dspring.profiles.active=test
+    ```
+
+3. **Custom Test Data:**
+    * Test fixtures and data initialization scripts are located in `src/test/resources/data`
+    * Database schema is automatically created based on JPA entity definitions
+
+4. **Test Database Logging:**
+    * SQL logging can be enabled in test mode by setting appropriate log levels in the test configuration
+
+> **Note:** Integration tests are isolated from your development or production databases, ensuring no test-related data affects your actual databases.

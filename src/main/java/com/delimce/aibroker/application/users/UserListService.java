@@ -14,15 +14,14 @@ public class UserListService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    
+
     public UserListService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
     }
 
     public List<UserListResponse> execute() {
-        var users = userRepository.findAll();
-        return users.stream()
+        return userRepository.findAll().stream()
                 .map(userMapper::userToUserListResponse)
                 .collect(Collectors.toList());
     }
