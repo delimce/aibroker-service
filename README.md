@@ -42,12 +42,21 @@ A middleware service that acts as an intelligent broker between applications and
     * Tests use a MySQL database named `aibroker_db_test` for testing
 
 ## Building
+
+To clean, compile, run tests, and package the application into an executable JAR file:
+
 ```bash
-./mvnw clean package and create the executable JAR file, run the following command from the project root directory:
+./mvnw clean package
 ```
+
+This will create the file `target/aibroker-service-x.x.x-SNAPSHOT.jar`.
+
+To run the application in production mode:
+
 ```bash
-This will compile the code, run tests, and package the application into `target/aibroker-service-0.0.1-SNAPSHOT.jar`.
+./start.sh
 ```
+
 ## Testing
 To run the unit tests, execute the following command:
 
