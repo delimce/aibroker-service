@@ -10,15 +10,22 @@
 	</parent>
 	<groupId>com.delimce</groupId>
 	<artifactId>aibroker-service</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>aibroker-service</name>
 	<description>API suite for managing requests to AI LLM models</description>
 	<url/>
 	<licenses>
-		<license/>
+		<license>
+			<name>Creative Commons Attribution-NonCommercial-ShareAlike</name>
+			<url>https://creativecommons.org/licenses/by-nc-sa/4.0/</url>
+			<distribution>repo</distribution>
+		</license>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer>
+			<name>Luis De lima</name>
+			<email>delimce@gmail.com</email>
+		</developer>
 	</developers>
 	<scm>
 		<connection/>
