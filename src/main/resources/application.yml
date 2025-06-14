@@ -30,6 +30,8 @@ spring:
     validate-on-migrate: true
   main:
     allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   security:
     jwt:
       secret-key: ${SPRING.SECURITY.JWT.SECRET_KEY}
