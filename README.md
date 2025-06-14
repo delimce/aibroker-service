@@ -57,6 +57,33 @@ To run the application in production mode:
 ./start.sh
 ```
 
+## Database Migrations
+
+This project uses Flyway for database migrations. Migration scripts are located in `src/main/resources/db/migration`.
+
+To manage database migrations, use the provided script that automatically loads database configuration from your .env file:
+
+```bash
+# See the migration status
+./flyway.sh info
+
+# Apply pending migrations
+./flyway.sh migrate
+
+# Clean the database (USE WITH CAUTION - DELETES ALL DATA)
+./flyway.sh clean
+```
+
+### Migration Documentation
+
+For comprehensive information about database migrations, including:
+- Migration naming conventions
+- How to add new migrations
+- Important guidelines and best practices
+- Command reference
+
+See the 📚 [**Database Migrations Documentation**](src/main/resources/db/migration/README.md)
+
 ## Testing
 To run the unit tests, execute the following command:
 
