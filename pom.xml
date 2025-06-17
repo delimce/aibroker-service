@@ -237,6 +237,16 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<excludes>
+								<!-- Exclude configuration classes -->
+								<exclude>**/config/**/*</exclude>
+								<!-- Exclude main application class -->
+								<exclude>**/AibrokerApplication.class</exclude>
+								<!-- Exclude generated classes -->
+								<exclude>**/mapper/*MapperImpl.class</exclude>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
