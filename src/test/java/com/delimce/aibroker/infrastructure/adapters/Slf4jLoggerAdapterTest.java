@@ -104,4 +104,22 @@ class Slf4jLoggerAdapterTest {
         assertEquals(Slf4jLoggerAdapterTest.class.getName(), loggingEvent.getLoggerName());
         assertEquals(message, loggingEvent.getMessage());
     }
+
+    @Test
+    void infoMethod_withArgs_shouldFormatAndLogWithInfoLevel() {
+        // Given
+        String messageTemplate = "Info message with %s and %d";
+        String arg1 = "string";
+        int arg2 = 42;
+        String expectedMessage = "Info message with string and 42";
+
+        // When
+        loggerAdapter.info(messageTemplate, arg1, arg2);
+
+        // Then
+        ILoggingEvent loggingEvent = listAppender.list.get(0);
+        assertEquals(Level.INFO, loggingEvent.getLevel());
+        assertEquals(expectedMessage, loggingEvent.getMessage());
+        assertEquals(Slf4jLoggerAdapter.class.getName(), loggingEvent.getLoggerName());
+    }
 }
