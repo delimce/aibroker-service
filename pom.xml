@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.delimce</groupId>
 	<artifactId>aibroker-service</artifactId>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>aibroker-service</name>
 	<description>API suite for managing requests to AI LLM models</description>
 	<url/>
@@ -56,7 +56,13 @@
 
 		<dependency>
     		<groupId>org.springframework.boot</groupId>
-    		<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- Spring Boot Actuator for health and metrics endpoints -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
 		<dependency>
@@ -97,7 +103,7 @@
 			<artifactId>mapstruct-processor</artifactId>
 			<version>1.6.3</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok-mapstruct-binding</artifactId>
@@ -114,7 +120,7 @@
 		<dependency>
 			<groupId>com.github.javafaker</groupId>
 			<artifactId>javafaker</artifactId>
-			<version>1.0.2</version> 
+			<version>1.0.2</version>
 		</dependency>
 
 		<dependency>
@@ -139,7 +145,7 @@
 			<artifactId>jjwt-impl</artifactId>
 			<version>0.11.5</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
@@ -216,7 +222,7 @@
 					</compilerArgs>
 				</configuration>
 			</plugin>
-			
+
 			<!-- JaCoCo plugin for test coverage -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -247,7 +253,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<!-- Configure Surefire plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
