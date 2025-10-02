@@ -90,9 +90,7 @@ class LlmChatServiceTest {
                 new ModelMessageRequest("user", "Hello, how are you?")
         };
 
-        ModelRequest request = new ModelRequest();
-        request.setModel("TestModel");
-        request.setMessages(messages);
+        ModelRequest request = new ModelRequest("TestModel", false, messages, 1);
 
         Provider provider = new Provider();
         provider.setName("TestProvider");
@@ -128,9 +126,7 @@ class LlmChatServiceTest {
                 new ModelMessageRequest("user", "Hello, how are you?")
         };
 
-        ModelRequest request = new ModelRequest();
-        request.setModel("NonExistentModel");
-        request.setMessages(messages);
+        ModelRequest request = new ModelRequest("NonExistentModel", false, messages, 1);
 
         when(modelRepository.findByName("NonExistentModel")).thenReturn(null);
 
@@ -148,9 +144,7 @@ class LlmChatServiceTest {
                 new ModelMessageRequest("user", "Hello, how are you?")
         };
 
-        ModelRequest request = new ModelRequest();
-        request.setModel("DisabledModel");
-        request.setMessages(messages);
+        ModelRequest request = new ModelRequest("DisabledModel", false, messages, 1);
 
         Model model = new Model();
         model.setName("DisabledModel");
@@ -172,9 +166,7 @@ class LlmChatServiceTest {
                 new ModelMessageRequest("user", "Hello, how are you?")
         };
 
-        ModelRequest request = new ModelRequest();
-        request.setModel("TestModel");
-        request.setMessages(messages);
+        ModelRequest request = new ModelRequest("TestModel", false, messages, 1);
 
         Provider provider = new Provider();
         provider.setName("TestProvider");
@@ -206,9 +198,7 @@ class LlmChatServiceTest {
                 new ModelMessageRequest("user", "Hello, how are you?")
         };
 
-        ModelRequest request = new ModelRequest();
-        request.setModel("TestModel");
-        request.setMessages(messages);
+        ModelRequest request = new ModelRequest("TestModel", false, messages, 1);
 
         Provider provider = new Provider();
         provider.setName("TestProvider");
@@ -238,9 +228,7 @@ class LlmChatServiceTest {
                 new ModelMessageRequest("user", "Hello, how are you?")
         };
 
-        ModelRequest request = new ModelRequest();
-        request.setModel("TestModel");
-        request.setMessages(messages);
+        ModelRequest request = new ModelRequest("TestModel", false, messages, 1);
 
         Provider provider = new Provider();
         provider.setName("TestProvider");
@@ -253,14 +241,9 @@ class LlmChatServiceTest {
         model.setCreatedAt(LocalDateTime.now());
 
         // Create a response with usage data
-        ModelChatResponse expectedResponse = new ModelChatResponse();
-        com.delimce.aibroker.domain.dto.responses.llm.Usage usage = new com.delimce.aibroker.domain.dto.responses.llm.Usage();
-        usage.setPrompt_tokens(100);
-        usage.setCompletion_tokens(50);
-        usage.setTotal_tokens(150);
-        usage.setPrompt_cache_hit_tokens(20);
-        usage.setPrompt_cache_miss_tokens(80);
-        expectedResponse.setUsage(usage);
+        com.delimce.aibroker.domain.dto.responses.llm.Usage usage = new com.delimce.aibroker.domain.dto.responses.llm.Usage(
+                100, 50, 150, null, 20, 80);
+        ModelChatResponse expectedResponse = new ModelChatResponse(null, null, 0, null, null, usage, null);
 
         when(modelRepository.findByName("TestModel")).thenReturn(model);
         when(userRequestRepository.save(any(UserRequest.class))).thenAnswer(i -> i.getArgument(0));
@@ -285,9 +268,7 @@ class LlmChatServiceTest {
                 new ModelMessageRequest("user", "Hello, how are you?")
         };
 
-        ModelRequest request = new ModelRequest();
-        request.setModel("TestModel");
-        request.setMessages(messages);
+        ModelRequest request = new ModelRequest("TestModel", false, messages, 1);
 
         Provider provider = new Provider();
         provider.setName("TestProvider");
@@ -300,9 +281,7 @@ class LlmChatServiceTest {
         model.setCreatedAt(LocalDateTime.now());
 
         // Create a response with no usage data
-        ModelChatResponse expectedResponse = new ModelChatResponse();
-        // Explicitly set usage to null
-        expectedResponse.setUsage(null);
+        ModelChatResponse expectedResponse = new ModelChatResponse(null, null, 0, null, null, null, null);
 
         when(modelRepository.findByName("TestModel")).thenReturn(model);
         when(userRequestRepository.save(any(UserRequest.class))).thenAnswer(i -> i.getArgument(0));

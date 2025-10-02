@@ -47,14 +47,12 @@ public class LlmChatService extends BaseService {
 
         User user = fetchAuthenticatedUser();
 
-        // save request data before send to model
         UserRequest userRequest = UserRequest.builder()
                 .model(model)
                 .user(user)
                 .prompt(request.getMessages()[0].getContent())
                 .build();
 
-        // Save the user request to the database
         userRequestRepository.save(userRequest);
 
         ModelChatResponse chatResponse = client.requestToModel(model, request);
@@ -63,7 +61,6 @@ public class LlmChatService extends BaseService {
             throw new IllegalArgumentException("Chat response is null");
         }
 
-        // Process and save metrics from the response
         processStats(chatResponse, userRequest);
 
         return chatResponse;
@@ -77,11 +74,10 @@ public class LlmChatService extends BaseService {
      * @param userRequest  The user request
      */
     protected void processStats(ModelChatResponse chatResponse, UserRequest userRequest) {
-        // Check if usage data is available
+
         if (chatResponse.getUsage() != null) {
             Usage usage = chatResponse.getUsage();
 
-            // Create a new RequestMetric entity
             RequestMetric metric = RequestMetric.builder()
                     .userRequest(userRequest)
                     .promptTokens(usage.getPrompt_tokens())
@@ -91,7 +87,6 @@ public class LlmChatService extends BaseService {
                     .promptCacheMissTokens(usage.getPrompt_cache_miss_tokens())
                     .build();
 
-            // Save the metrics to the database
             requestMetricRepository.save(metric);
         }
     }

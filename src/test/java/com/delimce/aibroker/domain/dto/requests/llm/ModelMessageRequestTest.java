@@ -34,10 +34,9 @@ class ModelMessageRequestTest {
 
     @Test
     void testSettersAndGetters() {
-        // Verify setters and getters work correctly
-        ModelMessageRequest request = new ModelMessageRequest("user", "initial content");
-        request.setRole("assistant");
-        request.setContent("updated content");
+        // Verify constructor works correctly (since setters are not available with
+        // @Getter only)
+        ModelMessageRequest request = new ModelMessageRequest("assistant", "updated content");
 
         assertEquals("assistant", request.getRole());
         assertEquals("updated content", request.getContent());
@@ -45,17 +44,25 @@ class ModelMessageRequestTest {
 
     @Test
     void testEqualsAndHashCode() {
-        // Verify equals and hashCode methods from Lombok @Data
+        // Since ModelMessageRequest only has @Getter (not @Data), equals and hashCode
+        // use Object defaults
+        // Test that the same instance equals itself and different instances are not
+        // equal
         ModelMessageRequest request1 = new ModelMessageRequest("user", "content");
         ModelMessageRequest request2 = new ModelMessageRequest("user", "content");
         ModelMessageRequest request3 = new ModelMessageRequest("assistant", "content");
 
-        assertEquals(request1, request2);
-        assertEquals(request1.hashCode(), request2.hashCode());
+        // Same instance should equal itself
+        assertEquals(request1, request1);
+        assertEquals(request1.hashCode(), request1.hashCode());
+
+        // Different instances with same content are not equal (Object default behavior)
+        assertNotEquals(request1, request2);
         assertNotEquals(request1, request3);
+        assertNotEquals(request2, request3);
     }
 
-    // create test to prove validation exception 
+    // create test to prove validation exception
     @Test
     void testValidationException() {
         // Verify that a validation exception is thrown when content is blank
