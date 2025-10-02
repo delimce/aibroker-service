@@ -42,12 +42,13 @@ public class AccountRegisterServiceTest {
 
     @BeforeEach
     void setUp() {
-        request = new UserRegistrationRequest();
-        request.setFirstName("John");
-        request.setLastName("Doe");
-        request.setEmail("john@example.com");
-        request.setPassword("password123");
-        request.setPasswordConfirmation("password123");
+        request = new UserRegistrationRequest(
+            "John",
+            "Doe", 
+            "john@example.com",
+            "password123",
+            "password123"
+        );
 
         user = User.builder()
                 .name("John")

@@ -7,10 +7,10 @@ import jakarta.validation.constraints.Size;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,4 +37,9 @@ public class UserRegistrationRequest {
     @NotBlank(message = "Password confirmation is required")
     @Size(min = 8, message = "Password confirmation must be at least 8 characters long")
     private String passwordConfirmation;
+
+    // only for testing purposes
+    public void setPasswordConfirmation(String string) {
+        passwordConfirmation = string;
+    }
 }

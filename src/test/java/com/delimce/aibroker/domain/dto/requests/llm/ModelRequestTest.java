@@ -104,11 +104,9 @@ class ModelRequestTest {
                 new ModelMessageRequest("user", "Hello")
         };
 
-        ModelRequest request = new ModelRequest();
-        request.setModel(VALID_MODEL);
-        request.setStream(true);
-        request.setMessages(messages);
-        request.setTemperature(0);
+        // Use constructor instead of setters since ModelRequest only has @Getter
+        // annotation
+        ModelRequest request = new ModelRequest(VALID_MODEL, true, messages, 0);
 
         assertEquals(VALID_MODEL, request.getModel());
         assertTrue(request.isStream());
@@ -126,8 +124,14 @@ class ModelRequestTest {
         ModelRequest request2 = new ModelRequest(VALID_MODEL, true, messages, 0);
         ModelRequest request3 = new ModelRequest("different-model-name", true, messages, 0);
 
-        assertEquals(request1, request2);
-        assertEquals(request1.hashCode(), request2.hashCode());
+        // Since ModelRequest only has @Getter (not @Data), equals and hashCode use
+        // Object defaults
+        // Same instance should equal itself
+        assertEquals(request1, request1);
+        assertEquals(request1.hashCode(), request1.hashCode());
+
+        // Different instances are not equal (Object default behavior)
+        assertNotEquals(request1, request2);
         assertNotEquals(request1, request3);
     }
 
