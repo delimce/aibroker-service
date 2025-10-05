@@ -4,7 +4,7 @@
 This file gives concise, actionable guidance to AI coding agents (Copilot-style) working on this repository. Focus on discoverable patterns, build/test/run commands, and files that show project conventions.
 
 1) Big picture (what this project is)
-- A Spring Boot 3.x service (Java 17) that brokers requests to multiple LLM providers. Main entry: `src/main/java/com/delimce/aibroker/AibrokerApplication.java`.
+- A Spring Boot 3.x service (Java 21) that brokers requests to multiple LLM providers. Main entry: `src/main/java/com/delimce/aibroker/AibrokerApplication.java`.
 - Package layout: `application` (use-case services), `infrastructure` (controllers/adapters), `domain` (entities, DTOs, ports, repositories), `config` (security, caching, flyway). Follow this separation: business logic in `application`, web layer in `infrastructure/controllers`, persistence in `domain/repositories`.
 
 2) How to build, test, and run (exact commands)
