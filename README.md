@@ -5,7 +5,7 @@ A middleware service that acts as an intelligent broker between applications and
 
 ## Prerequisites
 
-*   Java Development Kit (JDK) - Version 17 or higher recommended.
+*   Java Development Kit (JDK) - Version 21 or higher recommended.
 *   Docker & Docker Compose - For running associated services or the application containerized.
 
 ## Installation
