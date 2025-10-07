@@ -5,10 +5,9 @@ import java.time.LocalDateTime;
 import com.delimce.aibroker.domain.enums.ModelType;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-
+import lombok.Getter;
 @AllArgsConstructor
-@Data
+@Getter
 public class ModelDetailResponse {
 
     String name;
