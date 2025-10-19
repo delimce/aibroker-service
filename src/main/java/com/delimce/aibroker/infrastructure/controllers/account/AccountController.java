@@ -15,7 +15,6 @@ import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
 import com.delimce.aibroker.domain.exceptions.account.UserIsNotActiveException;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
-import com.delimce.aibroker.domain.ports.LoggerInterface;
 
 import jakarta.validation.Valid;
 
@@ -37,9 +36,7 @@ public class AccountController extends BaseController {
 
     public AccountController(AccountRegisterService accountRegisterService,
             AccountLoginService accountLoginService,
-            AccountVerifiedService accountVerifiedService,
-            LoggerInterface logger) {
-        super(logger);
+            AccountVerifiedService accountVerifiedService) {
         this.accountRegisterService = accountRegisterService;
         this.accountLoginService = accountLoginService;
         this.accountVerifiedService = accountVerifiedService;

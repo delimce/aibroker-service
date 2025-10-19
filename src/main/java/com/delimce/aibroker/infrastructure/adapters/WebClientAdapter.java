@@ -4,9 +4,11 @@ import com.delimce.aibroker.domain.dto.requests.llm.ModelRequest;
 import com.delimce.aibroker.domain.dto.responses.llm.ModelChatResponse;
 import com.delimce.aibroker.domain.entities.Model;
 import com.delimce.aibroker.domain.ports.AiApiClientInterface;
-import com.delimce.aibroker.domain.ports.LoggerInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.log4j.Log4j2;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -16,16 +18,15 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 @Component
+@Log4j2
 public class WebClientAdapter implements AiApiClientInterface {
 
-    private final LoggerInterface logger;
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
     private static final String PING_URL = "https://httpbin.org/get";
 
-    public WebClientAdapter(WebClient.Builder webClientBuilder, LoggerInterface logger, ObjectMapper objectMapper) {
+    public WebClientAdapter(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
         this.webClient = webClientBuilder.build();
-        this.logger = logger;
         this.objectMapper = objectMapper;
     }
 
@@ -47,14 +48,14 @@ public class WebClientAdapter implements AiApiClientInterface {
                     .flatMap(response -> Mono.just(response.getStatusCode().is2xxSuccessful()))
                     .onErrorResume(e -> {
                         // Log errors using LoggerInterface
-                        logger.warn(String.format("Ping to %s failed: %s", PING_URL, e.getMessage()));
+                        log.warn("Ping to {} failed: {}", PING_URL, e.getMessage());
                         return Mono.just(false); // Indicate failure
                     })
                     .blockOptional() // Block synchronously for the result
                     .orElse(false); // Default to false if mono completes empty or times out
         } catch (Exception e) {
             // Catch synchronous exceptions during the blocking call
-            logger.error("Unexpected error during ping to {}: {}", PING_URL, e.getMessage(), e); // Use LoggerInterface
+            log.error("Unexpected error during ping to {}: {}", PING_URL, e.getMessage(), e);
             return false;
         }
     }
@@ -73,7 +74,7 @@ public class WebClientAdapter implements AiApiClientInterface {
     public ModelChatResponse requestToModel(Model model, ModelRequest modelRequest) {
 
         if (model == null || model.getProvider() == null) {
-            logger.error("Cannot request model: Model or its Provider is null.");
+            log.error("Cannot request model: Model or its Provider is null.");
             return null;
         }
 
@@ -82,7 +83,7 @@ public class WebClientAdapter implements AiApiClientInterface {
 
         // Basic validation for URL and API Key
         if (targetUrl == null || targetUrl.isBlank() || apiKey == null || apiKey.isBlank()) {
-            logger.error("Cannot request model '{}': Provider URL or API Key is missing.", model.getName());
+            log.error("Cannot request model '{}': Provider URL or API Key is missing.", model.getName());
             return null;
         }
 
@@ -94,20 +95,20 @@ public class WebClientAdapter implements AiApiClientInterface {
                     .body(Mono.just(modelRequest), ModelRequest.class)
                     .retrieve() // Initiate the request and retrieve the response spec
                     .bodyToMono(String.class) // Convert the response body to a Mono<String>
-                    .doOnSuccess(responseBody -> logger.info(
+                    .doOnSuccess(responseBody -> log.info(
                             "Successfully received response string from model {} at {}: {}",
                             modelRequest.getModel(), targetUrl, responseBody))
                     // Apply error handling *after* bodyToMono
                     .onErrorResume(WebClientResponseException.class, e -> {
                         HttpStatusCode statusCode = e.getStatusCode();
                         String responseBody = e.getResponseBodyAsString();
-                        logger.error(
+                        log.error(
                                 "Request to model {} at {} failed with status {}: {}. Response body: {}",
                                 modelRequest.getModel(), targetUrl, statusCode, e.getMessage(), responseBody, e);
                         return Mono.empty(); // Return empty Mono on client/server error
                     })
                     .onErrorResume(e -> !(e instanceof WebClientResponseException), e -> {
-                        logger.error("Request to model {} at {} failed due to unexpected error: {}",
+                        log.error("Request to model {} at {} failed due to unexpected error: {}",
                                 modelRequest.getModel(), targetUrl, e.getMessage(), e);
                         return Mono.empty(); // Return empty Mono on other errors
                     })
@@ -124,13 +125,13 @@ public class WebClientAdapter implements AiApiClientInterface {
 
                 return chatResponse;
             } catch (JsonProcessingException e) {
-                logger.error("Failed to parse JSON response from model {} at {}: {}. Response body: {}",
+                log.error("Failed to parse JSON response from model {} at {}: {}. Response body: {}",
                         modelRequest.getModel(), targetUrl, e.getMessage(), responseBodyString, e);
                 return null; // Indicate parsing failure
             }
 
         } catch (Exception e) {
-            logger.error("Unexpected synchronous error during requestToModel for model {}: {}",
+            log.error("Unexpected synchronous error during requestToModel for model {}: {}",
                     modelRequest.getModel(), e.getMessage(), e);
             return null; // Indicate failure
         }

@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.delimce.aibroker.config.JwtAuthenticationFilter;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
-import com.delimce.aibroker.domain.ports.LoggerInterface;
 import com.delimce.aibroker.domain.repositories.UserRepository;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 
@@ -32,11 +31,6 @@ public class TestConfig {
     @Bean
     public UserRepository userRepository() {
         return mock(UserRepository.class);
-    }
-
-    @Bean
-    public LoggerInterface loggerInterface() {
-        return mock(LoggerInterface.class);
     }
 
     @Bean
