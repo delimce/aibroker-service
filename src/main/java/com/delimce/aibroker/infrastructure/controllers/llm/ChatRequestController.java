@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.delimce.aibroker.application.llm.LlmChatService;
 import com.delimce.aibroker.domain.dto.ApiResponse;
 import com.delimce.aibroker.domain.dto.requests.llm.ModelRequest;
-import com.delimce.aibroker.domain.ports.LoggerInterface;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
 import jakarta.validation.Valid;
 
@@ -19,8 +18,7 @@ public class ChatRequestController extends BaseController {
 
     private final LlmChatService llmChatService;
 
-    public ChatRequestController(LlmChatService llmChatService, LoggerInterface logger) {
-        super(logger);
+    public ChatRequestController(LlmChatService llmChatService) {
         this.llmChatService = llmChatService;
     }
 
