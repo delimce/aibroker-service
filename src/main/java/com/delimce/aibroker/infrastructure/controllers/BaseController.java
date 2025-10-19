@@ -14,17 +14,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.delimce.aibroker.domain.dto.ApiResponse;
 import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
-import com.delimce.aibroker.domain.ports.LoggerInterface;
+
+import lombok.extern.log4j.Log4j2;
 
 @ControllerAdvice
+@Log4j2
 public class BaseController extends ResponseEntityExceptionHandler
         implements ControllerInterface {
-
-    private final LoggerInterface logger;
-
-    public BaseController(LoggerInterface logger) {
-        this.logger = logger;
-    }
 
     @Override
     public ApiResponse responseOk(Object data) {
@@ -77,7 +73,7 @@ public class BaseController extends ResponseEntityExceptionHandler
 
     protected ResponseEntity<ApiResponse> unhandledExceptionResponse(
             Exception e) {
-        logger.error("Unhandled exception: {}", e.getMessage(), e);
+        log.error("Unhandled exception: {}", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(responseError("An error occurred during execution", 500));
     }

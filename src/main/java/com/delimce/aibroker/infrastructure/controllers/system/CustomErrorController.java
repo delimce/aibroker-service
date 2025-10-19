@@ -5,19 +5,13 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.delimce.aibroker.domain.ports.LoggerInterface;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
 
 @RestController
+@Log4j2
 public class CustomErrorController implements ErrorController {
-
-    private final LoggerInterface logger;
-
-    public CustomErrorController(LoggerInterface logger) {
-        this.logger = logger;
-    }
 
     @GetMapping("/error")
     public String handleError(HttpServletRequest request, HttpServletResponse response) {
@@ -31,7 +25,7 @@ public class CustomErrorController implements ErrorController {
             return "An error occurred. Please try again later.";
         } catch (Exception e) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
-            logger.error("Exception in error handler: " + e.getMessage());
+            log.error("Exception in error handler: " + e.getMessage());
             return "404 - Resource not found.";
         }
     }

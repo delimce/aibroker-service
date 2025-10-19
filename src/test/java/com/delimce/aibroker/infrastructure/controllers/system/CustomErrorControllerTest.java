@@ -1,6 +1,5 @@
 package com.delimce.aibroker.infrastructure.controllers.system;
 
-import com.delimce.aibroker.domain.ports.LoggerInterface;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +12,7 @@ import static org.mockito.Mockito.*;
 
 class CustomErrorControllerTest {
 
-    @Mock
-    private LoggerInterface loggerMock;
+    // No logger dependency: controller uses Lombok @Log4j2 internally
 
     @Mock
     private HttpServletRequest requestMock;
@@ -27,7 +25,7 @@ class CustomErrorControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        customErrorController = new CustomErrorController(loggerMock);
+        customErrorController = new CustomErrorController();
     }
 
     @Test
@@ -41,7 +39,6 @@ class CustomErrorControllerTest {
         // Assert
         assertEquals("404 - Resource not found.", result);
         verify(responseMock).setStatus(HttpStatus.NOT_FOUND.value());
-        verifyNoInteractions(loggerMock);
     }
 
     @Test
@@ -56,7 +53,6 @@ class CustomErrorControllerTest {
         // Assert
         assertEquals("An error occurred. Please try again later.", result);
         verify(responseMock).setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        verifyNoInteractions(loggerMock);
     }
 
     @Test
@@ -70,7 +66,6 @@ class CustomErrorControllerTest {
         // Assert
         assertEquals("An error occurred. Please try again later.", result);
         verify(responseMock).setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        verifyNoInteractions(loggerMock);
     }
 
     @Test
@@ -86,6 +81,7 @@ class CustomErrorControllerTest {
         // Assert
         assertEquals("404 - Resource not found.", result);
         verify(responseMock).setStatus(HttpStatus.NOT_FOUND.value());
-        verify(loggerMock).error("Exception in error handler: " + exceptionMessage);
+        // Logging is internal to the controller (Lombok @Log4j2); we don't assert on
+        // the logger here.
     }
 }
