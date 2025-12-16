@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.delimce.aibroker.domain.dto.ApiResponse;
 import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
 
+import io.jsonwebtoken.io.DecodingException;
 import lombok.extern.log4j.Log4j2;
 
 @ControllerAdvice
@@ -63,6 +64,12 @@ public class BaseController extends ResponseEntityExceptionHandler
     public ResponseEntity<?> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'handleMethodArgumentNotValid'");
+    }
+
+    protected ResponseEntity<ApiResponse> badJwtConfigExceptionResponse(
+            DecodingException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(responseError("Invalid token jwt config", HttpStatus.INTERNAL_SERVER_ERROR.value()));
     }
 
     protected ResponseEntity<ApiResponse> illegalArgumentExceptionResponse(
