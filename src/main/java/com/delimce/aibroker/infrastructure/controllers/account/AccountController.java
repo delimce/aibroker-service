@@ -16,6 +16,7 @@ import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException
 import com.delimce.aibroker.domain.exceptions.account.UserIsNotActiveException;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
 
+import io.jsonwebtoken.io.DecodingException;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,8 @@ public class AccountController extends BaseController {
                     .body(responseError(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
         } catch (IllegalArgumentException e) {
             return illegalArgumentExceptionResponse(e);
+        } catch (DecodingException e) {
+            return badJwtConfigExceptionResponse(e);
         } catch (Exception e) {
             return unhandledExceptionResponse(e);
         }
@@ -66,6 +69,8 @@ public class AccountController extends BaseController {
             return ResponseEntity.badRequest().body(responseError(e.getMessage()));
         } catch (IllegalArgumentException e) {
             return illegalArgumentExceptionResponse(e);
+        } catch (DecodingException e) {
+            return badJwtConfigExceptionResponse(e);
         } catch (Exception e) {
             return unhandledExceptionResponse(e);
         }
@@ -80,6 +85,8 @@ public class AccountController extends BaseController {
             return illegalArgumentExceptionResponse(e);
         } catch (SecurityValidationException e) {
             return unAuthorizedExceptionResponse(e);
+        } catch (DecodingException e) {
+            return badJwtConfigExceptionResponse(e);
         } catch (Exception e) {
             return unhandledExceptionResponse(e);
         }
