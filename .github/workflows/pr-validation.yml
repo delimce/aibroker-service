@@ -5,17 +5,26 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened]
-  push:
-    branches:
-      - 'feat/**'
-      - 'refactor/**'
-      - 'fix/**'
-      - 'docs/**'
-      - 'chore/**'
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0.25
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: aibroker_db_test
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: admin
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3307:3306
     
     steps:
       - name: Checkout code
@@ -28,11 +37,29 @@ jobs:
           distribution: 'temurin'
           cache: maven
       
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h127.0.0.1 -P3307 -uroot -proot 2>/dev/null; then
+              echo "MySQL is up"
+              exit 0
+            fi
+            echo "Waiting for MySQL... attempt $i/30"
+            sleep 2
+          done
+          echo "MySQL failed to start"
+          exit 1
+      
       - name: Clean and compile
         run: ./mvnw clean compile
       
-      - name: Run tests
-        run: ./mvnw test
+      - name: Run integration tests
+        run: ./mvnw test -Dspring.profiles.active=test
+        env:
+          MYSQL_HOST: localhost
+          MYSQL_PORT: 3307
+          MYSQL_USER: root
+          MYSQL_PASSWORD: root
       
       - name: Upload test results
         if: always()
