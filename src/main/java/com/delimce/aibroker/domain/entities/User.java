@@ -50,6 +50,9 @@ public class User {
     @Column(nullable = true, length = 255)
     private String tempToken;
 
+    @Column(nullable = true)
+    private Long tokenTs;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

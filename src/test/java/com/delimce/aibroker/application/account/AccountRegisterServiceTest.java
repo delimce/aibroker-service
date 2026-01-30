@@ -12,7 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.delimce.aibroker.domain.dto.requests.users.UserRegistrationRequest;
 import com.delimce.aibroker.domain.dto.responses.users.UserCreatedResponse;
+import com.delimce.aibroker.domain.dto.values.UserToken;
 import com.delimce.aibroker.domain.entities.User;
+import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
 import com.delimce.aibroker.domain.mappers.users.UserMapper;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
@@ -43,12 +45,11 @@ public class AccountRegisterServiceTest {
     @BeforeEach
     void setUp() {
         request = new UserRegistrationRequest(
-            "John",
-            "Doe", 
-            "john@example.com",
-            "password123",
-            "password123"
-        );
+                "John",
+                "Doe",
+                "john@example.com",
+                "password123",
+                "password123");
 
         user = User.builder()
                 .name("John")
@@ -62,15 +63,24 @@ public class AccountRegisterServiceTest {
                 user.getLastName(),
                 user.getEmail(),
                 user.getTempToken(),
-                user.getCreatedAt()
-                );
+                user.getCreatedAt());
     }
 
     @Test
-    void shouldCreateUserSuccessfully() throws UserAlreadyExistsException {
+    @SuppressWarnings("null")
+    void shouldCreateUserSuccessfully() throws UserAlreadyExistsException, SecurityValidationException {
+        // Mock JWT token generation
+        UserToken userToken = new UserToken(
+                "jwt.token.here",
+                "john@example.com",
+                System.currentTimeMillis() / 1000,
+                (System.currentTimeMillis() / 1000) + 3600,
+                3600000);
+
         when(userRepository.findByEmail(request.getEmail())).thenReturn(null);
         when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
+        when(jwtTokenInterface.generateUserToken(any(User.class))).thenReturn(userToken);
         when(userMapper.userToUserCreatedResponse(user)).thenReturn(response);
 
         UserCreatedResponse result = accountRegisterService.execute(request);
@@ -79,6 +89,7 @@ public class AccountRegisterServiceTest {
         verify(userRepository).findByEmail(request.getEmail());
         verify(passwordEncoder).encode(request.getPassword());
         verify(userRepository).save(any(User.class));
+        verify(jwtTokenInterface).generateUserToken(any(User.class));
         verify(userMapper).userToUserCreatedResponse(user);
     }
 

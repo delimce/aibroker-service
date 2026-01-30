@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `tbl_user` (
   `email` varchar(130) NOT NULL,
   `password` varchar(130) NOT NULL,
   `temp_token` varchar(255) DEFAULT NULL,
+  `token_ts` bigint DEFAULT NULL,
   `status` enum('ACTIVE','INACTIVE','PENDING') NOT NULL,
   `created_at` datetime(6) NOT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
