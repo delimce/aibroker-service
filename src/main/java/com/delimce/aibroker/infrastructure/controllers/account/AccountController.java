@@ -53,8 +53,8 @@ public class AccountController extends BaseController {
                     .body(responseError(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
         } catch (IllegalArgumentException e) {
             return illegalArgumentExceptionResponse(e);
-        } catch (DecodingException e) {
-            return badJwtConfigExceptionResponse(e);
+        } catch (SecurityValidationException e) {
+            return unAuthorizedExceptionResponse(e);
         } catch (Exception e) {
             return unhandledExceptionResponse(e);
         }
@@ -69,8 +69,8 @@ public class AccountController extends BaseController {
             return ResponseEntity.badRequest().body(responseError(e.getMessage()));
         } catch (IllegalArgumentException e) {
             return illegalArgumentExceptionResponse(e);
-        } catch (DecodingException e) {
-            return badJwtConfigExceptionResponse(e);
+        } catch (SecurityValidationException e) {
+            return unAuthorizedExceptionResponse(e);
         } catch (Exception e) {
             return unhandledExceptionResponse(e);
         }

@@ -2,14 +2,15 @@ package com.delimce.aibroker.application.account;
 
 import com.delimce.aibroker.domain.dto.requests.users.UserRegistrationRequest;
 import com.delimce.aibroker.domain.dto.responses.users.UserCreatedResponse;
+import com.delimce.aibroker.domain.dto.values.UserToken;
 import com.delimce.aibroker.domain.entities.User;
-import com.delimce.aibroker.domain.repositories.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
+import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
 import com.delimce.aibroker.domain.exceptions.account.UserAlreadyExistsException;
 import com.delimce.aibroker.domain.mappers.users.UserMapper;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
+import com.delimce.aibroker.domain.repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AccountRegisterService {
@@ -20,9 +21,9 @@ public class AccountRegisterService {
     private final JwtTokenInterface jwtTokenInterface;
 
     public AccountRegisterService(UserRepository userRepository,
-                                  PasswordEncoder passwordEncoder,
-                                  UserMapper userMapper,
-                                  JwtTokenInterface jwtTokenInterface) {
+            PasswordEncoder passwordEncoder,
+            UserMapper userMapper,
+            JwtTokenInterface jwtTokenInterface) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
@@ -30,11 +31,10 @@ public class AccountRegisterService {
     }
 
     public UserCreatedResponse execute(UserRegistrationRequest request)
-            throws UserAlreadyExistsException,
-            IllegalArgumentException {
-
+            throws UserAlreadyExistsException, IllegalArgumentException, SecurityValidationException {
         if (!request.getPassword().equals(request.getPasswordConfirmation())) {
-            throw new IllegalArgumentException("Password and password confirmation do not match");
+            throw new IllegalArgumentException(
+                    "Password and password confirmation do not match");
         }
 
         User user = userRepository.findByEmail(request.getEmail());
@@ -48,8 +48,9 @@ public class AccountRegisterService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
-        String token = jwtTokenInterface.generateToken(user);
-        user.setTempToken(token);
+        UserToken token = jwtTokenInterface.generateUserToken(user);
+        user.setTempToken(token.token());
+        user.setTokenTs(token.issuedAt());
 
         return userMapper.userToUserCreatedResponse(userRepository.save(user));
     }

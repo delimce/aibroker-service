@@ -10,8 +10,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.delimce.aibroker.domain.dto.requests.users.UserLoginRequest;
 import com.delimce.aibroker.domain.dto.responses.users.UserLoggedResponse;
+import com.delimce.aibroker.domain.dto.values.UserToken;
 import com.delimce.aibroker.domain.entities.User;
 import com.delimce.aibroker.domain.enums.UserStatus;
+import com.delimce.aibroker.domain.exceptions.SecurityValidationException;
 import com.delimce.aibroker.domain.exceptions.account.UserIsNotActiveException;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
 import com.delimce.aibroker.domain.repositories.UserRepository;
@@ -36,7 +38,8 @@ class AccountLoginServiceTest {
     }
 
     @Test
-    void shouldLoginSuccessfully() throws UserIsNotActiveException {
+    @SuppressWarnings("null")
+    void shouldLoginSuccessfully() throws UserIsNotActiveException, SecurityValidationException {
         // Arrange
         UserLoginRequest request = new UserLoginRequest("test@test.com", "password");
         User user = new User();
@@ -46,9 +49,16 @@ class AccountLoginServiceTest {
         user.setName("John");
         user.setLastName("Doe");
 
+        UserToken userToken = new UserToken(
+                "jwt-token",
+                "test@test.com",
+                System.currentTimeMillis() / 1000,
+                (System.currentTimeMillis() / 1000) + 3600,
+                3600000);
+
         when(userRepository.findByEmail("test@test.com")).thenReturn(user);
         when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
-        when(jwtTokenAdapter.generateToken(user)).thenReturn("jwt-token");
+        when(jwtTokenAdapter.generateUserToken(user)).thenReturn(userToken);
 
         // Act
         UserLoggedResponse response = accountLoginService.execute(request);

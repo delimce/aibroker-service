@@ -32,6 +32,7 @@ public class LlmChatService extends BaseService {
         this.client = client;
     }
 
+    @SuppressWarnings("null")
     @Transactional(rollbackFor = Exception.class)
     public ModelChatResponse execute(ModelRequest request) {
 
@@ -73,6 +74,7 @@ public class LlmChatService extends BaseService {
      * @param chatResponse The model chat response
      * @param userRequest  The user request
      */
+    @SuppressWarnings("null")
     protected void processStats(ModelChatResponse chatResponse, UserRequest userRequest) {
 
         if (chatResponse.getUsage() != null) {
