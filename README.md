@@ -30,7 +30,7 @@ A middleware service that acts as an intelligent broker between applications and
 2.  **Database Setup:**
     * To create and run the database container in one step:
       ```bash
-      docker-compose up -d
+      docker compose up -d
       ```
     * This command starts the database container in detached mode, making it accessible on the port specified in the `docker-compose.yml` file.
     * Edit the `.env` file to configure your environment-specific settings.
@@ -103,6 +103,14 @@ To run the unit tests, execute the following command:
 
 *   An HTTP client file `test-api.http` is included for testing API endpoints using tools like the VS Code REST Client extension.
 
+> **Important note:** You need to set correctly .env variable **SPRING.SECURITY.JWT.SECRET_KEY** in order to run correctly tests and get results. for additional information you can see: JWT Documentation.
+> (Jwt Official Docs)[https://jwt.io/introduction/]
+
+Set hash for JWT coding/decoding in .env file before running tests. you can use this bash command to generate a random secret key:
+
+```bash
+openssl rand -hex 32
+``` 
 
 ## Integration Testing
 

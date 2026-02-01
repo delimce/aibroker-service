@@ -1,5 +1,6 @@
 package com.delimce.aibroker.infrastructure.adapters;
 
+import com.delimce.aibroker.domain.dto.values.UserToken;
 import com.delimce.aibroker.domain.entities.User;
 import com.delimce.aibroker.domain.exceptions.security.JwtTokenException;
 import com.delimce.aibroker.domain.ports.JwtTokenInterface;
@@ -8,14 +9,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JwtTokenAdapter implements JwtTokenInterface {
@@ -37,7 +37,14 @@ public class JwtTokenAdapter implements JwtTokenInterface {
     }
 
     @Override
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) throws JwtTokenException {
+    public long extractIssuedAt(String token) throws JwtTokenException {
+        Date issuedAt = extractClaim(token, Claims::getIssuedAt);
+        return issuedAt.getTime() / 1000;
+    }
+
+    @Override
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver)
+            throws JwtTokenException {
         try {
             final Claims claims = extractAllClaims(token);
             return claimsResolver.apply(claims);
@@ -57,10 +64,10 @@ public class JwtTokenAdapter implements JwtTokenInterface {
         } catch (Exception e) {
             throw new JwtTokenException();
         }
-
     }
 
     @Override
+    @Deprecated
     public String generateToken(User userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
@@ -77,9 +84,13 @@ public class JwtTokenAdapter implements JwtTokenInterface {
     }
 
     @Override
-    public boolean isTokenValid(String token, User userDetails) throws JwtTokenException {
+    public boolean isTokenValid(String token, User userDetails)
+            throws JwtTokenException {
         final String email = extractEmail(token);
-        return (email.equals(userDetails.getEmail()) && !isTokenExpired(token));
+        final long issuedAt = extractIssuedAt(token);
+        return (email.equals(userDetails.getEmail()) &&
+                !isTokenExpired(token) &&
+                issuedAt == userDetails.getTokenTs());
     }
 
     private boolean isTokenExpired(String token) throws JwtTokenException {
@@ -89,5 +100,19 @@ public class JwtTokenAdapter implements JwtTokenInterface {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public UserToken generateUserToken(User userDetails) throws JwtTokenException {
+        String token = generateToken(userDetails);
+        long issuedAt = extractIssuedAt(token);
+        long expiresAt = extractExpiration(token).getTime() / 1000;
+        long expirationTimeMs = jwtExpiration;
+
+        return new UserToken(
+                token,
+                userDetails.getEmail(),
+                issuedAt,
+                expiresAt,
+                expirationTimeMs);
     }
 }
