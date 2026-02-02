@@ -20,9 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ModelController.class)
@@ -33,7 +33,7 @@ class ModelControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ModelListService modelListService;
 
     private static final DateTimeFormatter ISO_FORMATTER =
@@ -111,6 +111,7 @@ class ModelControllerTest {
         verify(modelListService).execute();
     }
 
+    @SuppressWarnings("null")
     @Test
     void listModels_whenServiceThrowsIllegalArgument_returnsBadRequest()
         throws Exception {
@@ -130,6 +131,7 @@ class ModelControllerTest {
         verify(modelListService).execute();
     }
 
+    @SuppressWarnings("null")
     @Test
     void listModels_whenServiceThrowsUnhandledException_returnsInternalServerError()
         throws Exception {

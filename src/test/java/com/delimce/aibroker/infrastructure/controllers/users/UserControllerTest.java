@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
@@ -27,43 +27,39 @@ class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private UserListService userListService;
 
-    @MockBean
+    @MockitoBean
     private JwtTokenInterface jwtTokenInterface;
 
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
 
     @Test
     void listUsers_withoutAuthorizationHeader_returnsUnauthorized()
-        throws Exception {
+            throws Exception {
         mockMvc
-            .perform(get("/users/all").header("Authorization", ""))
-            .andExpect(status().isUnauthorized())
-            .andExpect(
-                jsonPath("$.message").value(
-                    "Valid Authorization header with Bearer token is required"
-                )
-            )
-            .andExpect(jsonPath("$.status").value(401));
+                .perform(get("/users/all").header("Authorization", ""))
+                .andExpect(status().isUnauthorized())
+                .andExpect(
+                        jsonPath("$.message").value(
+                                "Valid Authorization header with Bearer token is required"))
+                .andExpect(jsonPath("$.status").value(401));
 
         verify(userListService, never()).execute();
     }
 
     @Test
     void listUsers_withInvalidAuthorizationHeader_returnsUnauthorized()
-        throws Exception {
+            throws Exception {
         mockMvc
-            .perform(get("/users/all").header("Authorization", "Token invalid"))
-            .andExpect(status().isUnauthorized())
-            .andExpect(
-                jsonPath("$.message").value(
-                    "Valid Authorization header with Bearer token is required"
-                )
-            )
-            .andExpect(jsonPath("$.status").value(401));
+                .perform(get("/users/all").header("Authorization", "Token invalid"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(
+                        jsonPath("$.message").value(
+                                "Valid Authorization header with Bearer token is required"))
+                .andExpect(jsonPath("$.status").value(401));
 
         verify(userListService, never()).execute();
     }
@@ -71,53 +67,45 @@ class UserControllerTest {
     @Test
     void listUsers_withValidAuthorizationHeader_returnsOk() throws Exception {
         List<UserListResponse> userResponses = List.of(
-            new UserListResponse(
-                1L,
-                "Jane",
-                "Doe",
-                "jane.doe@example.com",
-                UserStatus.ACTIVE
-            )
-        );
+                new UserListResponse(
+                        1L,
+                        "Jane",
+                        "Doe",
+                        "jane.doe@example.com",
+                        UserStatus.ACTIVE));
 
         when(userListService.execute()).thenReturn(userResponses);
 
         mockMvc
-            .perform(
-                get("/users/all").header("Authorization", "Bearer validToken")
-            )
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value(200))
-            .andExpect(jsonPath("$.message").value("OK"))
-            .andExpect(jsonPath("$.info").isArray())
-            .andExpect(jsonPath("$.info.length()").value(1))
-            .andExpect(jsonPath("$.info[0].id").value(1))
-            .andExpect(
-                jsonPath("$.info[0].email").value("jane.doe@example.com")
-            )
-            .andExpect(
-                jsonPath("$.info[0].status").value(UserStatus.ACTIVE.name())
-            );
+                .perform(
+                        get("/users/all").header("Authorization", "Bearer validToken"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(200))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.info").isArray())
+                .andExpect(jsonPath("$.info.length()").value(1))
+                .andExpect(jsonPath("$.info[0].id").value(1))
+                .andExpect(
+                        jsonPath("$.info[0].email").value("jane.doe@example.com"))
+                .andExpect(
+                        jsonPath("$.info[0].status").value(UserStatus.ACTIVE.name()));
 
         verify(userListService).execute();
     }
 
     @Test
     void listUsers_withServiceException_returnsInternalServerError()
-        throws Exception {
+            throws Exception {
         when(userListService.execute()).thenThrow(new RuntimeException("boom"));
 
         mockMvc
-            .perform(
-                get("/users/all").header("Authorization", "Bearer validToken")
-            )
-            .andExpect(status().isInternalServerError())
-            .andExpect(jsonPath("$.status").value(500))
-            .andExpect(
-                jsonPath("$.message").value(
-                    "An error occurred during execution"
-                )
-            );
+                .perform(
+                        get("/users/all").header("Authorization", "Bearer validToken"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(
+                        jsonPath("$.message").value(
+                                "An error occurred during execution"));
 
         verify(userListService).execute();
     }

@@ -52,6 +52,7 @@ class WebClientAdapterTest {
         
             private WebClientAdapter webClientAdapter;
 
+        @SuppressWarnings("null")
         @BeforeEach
         void setUp() {
                 // Mock the builder to return the client mock
@@ -145,6 +146,7 @@ class WebClientAdapterTest {
 
         // --- requestToModel Tests ---
 
+        @SuppressWarnings("null")
         @Test
         void requestToModel_ShouldReturnResponse_WhenApiCallIsSuccessful() throws JsonProcessingException {
                 // Arrange

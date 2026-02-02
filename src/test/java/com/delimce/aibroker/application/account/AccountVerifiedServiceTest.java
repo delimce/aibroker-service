@@ -39,6 +39,7 @@ class AccountVerifiedServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @SuppressWarnings("null")
     @Test
     void shouldActivateUserSuccessfully() throws JwtTokenException {
         // Arrange
@@ -69,6 +70,7 @@ class AccountVerifiedServiceTest {
         verify(userRepository).save(any(User.class));
     }
 
+    @SuppressWarnings("null")
     @Test
     void shouldNotChangeStatusForActiveUser() throws JwtTokenException {
         // Arrange
