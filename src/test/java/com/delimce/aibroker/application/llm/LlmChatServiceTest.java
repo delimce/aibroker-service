@@ -83,6 +83,7 @@ class LlmChatServiceTest {
                 testUser);
     }
 
+    @SuppressWarnings("null")
     @Test
     void execute_shouldReturnChatResponse_whenModelExistsAndIsEnabled() {
         // Arrange
@@ -159,6 +160,7 @@ class LlmChatServiceTest {
         assertEquals("Model is not enabled", exception.getMessage());
     }
 
+    @SuppressWarnings("null")
     @Test
     void execute_shouldThrowIllegalArgumentException_whenChatResponseIsNull() {
         // Arrange
@@ -191,6 +193,7 @@ class LlmChatServiceTest {
         verify(userRequestRepository).save(any(UserRequest.class));
     }
 
+    @SuppressWarnings("null")
     @Test
     void execute_shouldRollbackTransaction_whenExceptionOccurs() {
         // Arrange
@@ -221,6 +224,7 @@ class LlmChatServiceTest {
         assertEquals("Database error", exception.getMessage());
     }
 
+    @SuppressWarnings("null")
     @Test
     void execute_shouldSaveUsageMetrics_whenResponseHasUsageData() {
         // Arrange
@@ -261,6 +265,7 @@ class LlmChatServiceTest {
         verify(requestMetricRepository).save(any(com.delimce.aibroker.domain.entities.RequestMetric.class));
     }
 
+    @SuppressWarnings("null")
     @Test
     void execute_shouldNotSaveMetrics_whenResponseHasNoUsageData() {
         // Arrange

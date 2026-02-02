@@ -27,10 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ChatRequestController.class)
@@ -44,9 +44,10 @@ class ChatRequestControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private LlmChatService llmChatService;
 
+    @SuppressWarnings("null")
     @Test
     void chatRequest_whenValidPayload_returnsOkResponse() throws Exception {
         ModelMessageRequest messageRequest = ModelMessageRequest.builder()
@@ -124,6 +125,7 @@ class ChatRequestControllerTest {
         );
     }
 
+    @SuppressWarnings("null")
     @Test
     void chatRequest_whenServiceThrowsIllegalArgument_returnsBadRequest()
         throws Exception {
@@ -154,6 +156,7 @@ class ChatRequestControllerTest {
         verify(llmChatService).execute(any(ModelRequest.class));
     }
 
+    @SuppressWarnings("null")
     @Test
     void chatRequest_whenServiceThrowsUnhandledException_returnsInternalServerError()
         throws Exception {
@@ -190,6 +193,7 @@ class ChatRequestControllerTest {
         verify(llmChatService).execute(any(ModelRequest.class));
     }
 
+    @SuppressWarnings("null")
     @Test
     void chatRequest_whenPayloadFailsValidation_returnsBadRequest()
         throws Exception {

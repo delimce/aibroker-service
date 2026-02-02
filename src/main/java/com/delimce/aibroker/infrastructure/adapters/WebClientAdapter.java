@@ -70,6 +70,7 @@ public class WebClientAdapter implements AiApiClientInterface {
      * @return The parsed ModelChatResponse object, or null in case of error or
      *         non-successful response.
      */
+    @SuppressWarnings("null")
     @Override
     public ModelChatResponse requestToModel(Model model, ModelRequest modelRequest) {
 
