@@ -43,6 +43,7 @@ class ProviderRepositoryTest extends TestHandler {
         assertThat(savedProvider.getApiKey()).isEqualTo(apiKey);
     }
 
+    @SuppressWarnings("null")
     @Test
     void shouldFindProviderById() {
         // Given
