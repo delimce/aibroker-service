@@ -48,6 +48,7 @@ public class ModelRepositoryTest extends TestHandler {
         assertThat(savedModel.getName()).isEqualTo("GPT-4");
     }
 
+    @SuppressWarnings("null")
     @Test
     public void shouldFindModelById() {
         // Given
@@ -66,6 +67,7 @@ public class ModelRepositoryTest extends TestHandler {
         assertThat(found.get().getName()).isEqualTo("BERT");
     }
 
+    @SuppressWarnings("null")
     @Test
     public void shouldDeleteModel() {
         // Given

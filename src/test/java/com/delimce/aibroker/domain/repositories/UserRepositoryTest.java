@@ -23,6 +23,7 @@ public class UserRepositoryTest extends TestHandler {
         assertThat(userRepository).isNotNull();
     }
 
+    @SuppressWarnings("null")
     @Test
     void saveAndFindUserTest() {
         // Create a new User instance. Adjust the field setters to match your User
@@ -47,6 +48,7 @@ public class UserRepositoryTest extends TestHandler {
         assertThat(foundUser.get().getUpdatedAt()).isNotNull();
     }
 
+    @SuppressWarnings("null")
     @Test
     void saveUserWithExistingEmailTest() {
         // Create a new User instance. Adjust the field setters to match your User
@@ -82,6 +84,7 @@ public class UserRepositoryTest extends TestHandler {
         assertThat(isFailed).isTrue();
     }
 
+    @SuppressWarnings("null")
     @Test
     void findByEmailTest() {
         // Create a new User instance
