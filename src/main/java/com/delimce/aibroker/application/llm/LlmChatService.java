@@ -11,6 +11,7 @@ import com.delimce.aibroker.domain.ports.AiApiClientInterface;
 import com.delimce.aibroker.domain.repositories.ModelRepository;
 import com.delimce.aibroker.domain.repositories.RequestMetricRepository;
 import com.delimce.aibroker.domain.repositories.UserRequestRepository;
+import com.delimce.aibroker.domain.dto.requests.llm.ModelMessageRequest;
 import com.delimce.aibroker.domain.dto.requests.llm.ModelRequest;
 import com.delimce.aibroker.domain.dto.responses.llm.ModelChatResponse;
 import com.delimce.aibroker.domain.dto.responses.llm.Usage;
@@ -23,6 +24,8 @@ public class LlmChatService extends BaseService {
     private final UserRequestRepository userRequestRepository;
     private final RequestMetricRepository requestMetricRepository;
     private final AiApiClientInterface client;
+
+    private final static int MAX_CONTENT_PREVIEW_LENGTH = 100;
 
     public LlmChatService(ModelRepository modelRepository, UserRequestRepository userRequestRepository,
             RequestMetricRepository requestMetricRepository, AiApiClientInterface client) {
@@ -48,10 +51,12 @@ public class LlmChatService extends BaseService {
 
         User user = fetchAuthenticatedUser();
 
+        var messages = transformMessages(request.getMessages());
+
         UserRequest userRequest = UserRequest.builder()
                 .model(model)
                 .user(user)
-                .prompt(request.getMessages()[0].getContent())
+                .prompt(messages)
                 .build();
 
         userRequestRepository.save(userRequest);
@@ -91,6 +96,19 @@ public class LlmChatService extends BaseService {
 
             requestMetricRepository.save(metric);
         }
+    }
+
+    protected String transformMessages(ModelMessageRequest[] messages) {
+        StringBuilder sb = new StringBuilder();
+        for (ModelMessageRequest message : messages) {
+            sb.append("[").append(message.getRole()).append("]").append(": ")
+                    .append(message.getContent().substring(0, maxTotalCharsToStore(message.getContent()))).append("\n");
+        }
+        return sb.toString();
+    }
+
+    protected int maxTotalCharsToStore(String content) {
+        return Math.min(MAX_CONTENT_PREVIEW_LENGTH, content.length());
     }
 
 }
