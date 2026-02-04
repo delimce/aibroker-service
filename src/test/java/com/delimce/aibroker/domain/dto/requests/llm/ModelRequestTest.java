@@ -33,7 +33,7 @@ class ModelRequestTest {
 
         Set<ConstraintViolation<ModelRequest>> violations = validator.validate(request);
         assertEquals(1, violations.size());
-        assertEquals("Model must be at least 10 character long", violations.iterator().next().getMessage());
+        assertEquals("Model must be at least 6 character long", violations.iterator().next().getMessage());
     }
 
     @Test
