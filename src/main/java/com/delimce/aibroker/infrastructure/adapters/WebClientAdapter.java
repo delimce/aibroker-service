@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @Log4j2
+@Primary
 public class WebClientAdapter implements AiApiClientInterface {
 
     private final WebClient webClient;
