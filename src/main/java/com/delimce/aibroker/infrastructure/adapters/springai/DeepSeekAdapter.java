@@ -6,6 +6,9 @@ import com.delimce.aibroker.domain.dto.responses.llm.ModelChatResponse;
 import com.delimce.aibroker.domain.entities.Model;
 import com.delimce.aibroker.domain.enums.PromptMessageType;
 import com.delimce.aibroker.domain.ports.AiApiClientInterface;
+
+import lombok.AllArgsConstructor;
+
 import com.delimce.aibroker.domain.mappers.llm.ChatResponseMapper;
 
 import java.util.ArrayList;
@@ -24,12 +27,9 @@ import org.springframework.ai.deepseek.api.DeepSeekApi;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class DeepSeekAdapter implements AiApiClientInterface {
         private final ChatResponseMapper chatResponseMapper;
-
-        public DeepSeekAdapter(ChatResponseMapper chatResponseMapper) {
-                this.chatResponseMapper = chatResponseMapper;
-        }
 
         @Override
         public ModelChatResponse requestToModel(

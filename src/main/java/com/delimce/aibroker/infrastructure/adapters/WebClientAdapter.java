@@ -90,22 +90,30 @@ public class WebClientAdapter implements AiApiClientInterface {
                 return null; // Indicate failure
             }
 
-            try {
-                // Parse the JSON string into ModelChatResponse
-                ModelChatResponse chatResponse = objectMapper.readValue(responseBodyString,
-                        ModelChatResponse.class);
-
-                return chatResponse;
-            } catch (JsonProcessingException e) {
-                log.error("Failed to parse JSON response from model {} at {}: {}. Response body: {}",
-                        modelRequest.getModel(), targetUrl, e.getMessage(), responseBodyString, e);
-                return null; // Indicate parsing failure
-            }
+            return parseResponseBody(responseBodyString, modelRequest.getModel(), targetUrl);
 
         } catch (Exception e) {
             log.error("Unexpected synchronous error during requestToModel for model {}: {}",
                     modelRequest.getModel(), e.getMessage(), e);
             return null; // Indicate failure
+        }
+    }
+
+    /**
+     * Parses the JSON response body into a ModelChatResponse object.
+     *
+     * @param responseBodyString The raw JSON response string.
+     * @param modelName          The model name for logging purposes.
+     * @param targetUrl          The target URL for logging purposes.
+     * @return The parsed ModelChatResponse object, or null if parsing fails.
+     */
+    private ModelChatResponse parseResponseBody(String responseBodyString, String modelName, String targetUrl) {
+        try {
+            return objectMapper.readValue(responseBodyString, ModelChatResponse.class);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse JSON response from model {} at {}: {}. Response body: {}",
+                    modelName, targetUrl, e.getMessage(), responseBodyString, e);
+            return null;
         }
     }
 }
