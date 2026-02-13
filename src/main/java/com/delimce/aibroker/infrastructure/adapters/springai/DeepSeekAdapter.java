@@ -36,6 +36,7 @@ public class DeepSeekAdapter implements AiApiClientInterface {
                         Model model,
                         ModelRequest modelRequest) {
                 DeepSeekApi deepSeekApi = DeepSeekApi.builder()
+                                .baseUrl(model.getProvider().getBaseUrl())
                                 .apiKey(model.getProvider().getApiKey())
                                 .build();
                 DeepSeekChatOptions options = DeepSeekChatOptions.builder()
