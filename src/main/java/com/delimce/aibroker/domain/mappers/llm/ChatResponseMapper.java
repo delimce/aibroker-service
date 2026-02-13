@@ -38,7 +38,7 @@ public interface ChatResponseMapper {
             return 0L;
         }
         Object createdValue = metadata.get("created");
-        return createdValue instanceof Number ? ((Number) createdValue).longValue() : 0L;
+        return createdValue instanceof Number number ? number.longValue() : 0L;
     }
 
     default Choice[] mapChoices(ChatResponse response) {
@@ -51,7 +51,7 @@ public interface ChatResponseMapper {
         for (int i = 0; i < results.size(); i++) {
             Generation generation = results.get(i);
             var output = generation.getOutput();
-            String role = output != null && output.getMessageType() != null
+            String role = output != null
                     ? output.getMessageType().getValue()
                     : "assistant";
             String content = output != null ? output.getText() : null;

@@ -50,7 +50,11 @@ public class Model {
 
     @Column(nullable = false, columnDefinition = "DECIMAL(10,6)")
     @Builder.Default
-    private float costToken = 0; // usd
+    private float costTokenIn = 0; // usd
+
+    @Column(nullable = false, columnDefinition = "DECIMAL(10,6)")
+    @Builder.Default
+    private float costTokenOut = 0; // usd
 
     @Column(nullable = true)
     private String costTokenUnit; // ex: 1M -> million
