@@ -28,5 +28,5 @@ public class ModelRequest {
     ModelMessageRequest[] messages;
 
     @Builder.Default
-    int temperature = 1;
+    double temperature = 1.0;
 }

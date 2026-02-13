@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -19,45 +20,15 @@ import reactor.core.publisher.Mono;
 
 @Component
 @Log4j2
+@Primary
 public class WebClientAdapter implements AiApiClientInterface {
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
-    private static final String PING_URL = "https://httpbin.org/get";
 
     public WebClientAdapter(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
         this.webClient = webClientBuilder.build();
         this.objectMapper = objectMapper;
-    }
-
-    /**
-     * Pings a public URL using WebClient to check for basic connectivity.
-     *
-     * @return true if the ping receives a 2xx success status, false otherwise.
-     */
-    @Override
-    public boolean ping() {
-        try {
-            // Perform a GET request to the PING_URL
-            // blockOptional() is used to synchronously get the result,
-            // matching the interface signature. Returns false on errors or empty mono.
-            return webClient.get()
-                    .uri(PING_URL)
-                    .retrieve() // Throws WebClientResponseException for non-2xx/3xx status codes by default
-                    .toBodilessEntity() // We only need the status code
-                    .flatMap(response -> Mono.just(response.getStatusCode().is2xxSuccessful()))
-                    .onErrorResume(e -> {
-                        // Log errors using LoggerInterface
-                        log.warn("Ping to {} failed: {}", PING_URL, e.getMessage());
-                        return Mono.just(false); // Indicate failure
-                    })
-                    .blockOptional() // Block synchronously for the result
-                    .orElse(false); // Default to false if mono completes empty or times out
-        } catch (Exception e) {
-            // Catch synchronous exceptions during the blocking call
-            log.error("Unexpected error during ping to {}: {}", PING_URL, e.getMessage(), e);
-            return false;
-        }
     }
 
     /**
@@ -119,22 +90,30 @@ public class WebClientAdapter implements AiApiClientInterface {
                 return null; // Indicate failure
             }
 
-            try {
-                // Parse the JSON string into ModelChatResponse
-                ModelChatResponse chatResponse = objectMapper.readValue(responseBodyString,
-                        ModelChatResponse.class);
-
-                return chatResponse;
-            } catch (JsonProcessingException e) {
-                log.error("Failed to parse JSON response from model {} at {}: {}. Response body: {}",
-                        modelRequest.getModel(), targetUrl, e.getMessage(), responseBodyString, e);
-                return null; // Indicate parsing failure
-            }
+            return parseResponseBody(responseBodyString, modelRequest.getModel(), targetUrl);
 
         } catch (Exception e) {
             log.error("Unexpected synchronous error during requestToModel for model {}: {}",
                     modelRequest.getModel(), e.getMessage(), e);
             return null; // Indicate failure
+        }
+    }
+
+    /**
+     * Parses the JSON response body into a ModelChatResponse object.
+     *
+     * @param responseBodyString The raw JSON response string.
+     * @param modelName          The model name for logging purposes.
+     * @param targetUrl          The target URL for logging purposes.
+     * @return The parsed ModelChatResponse object, or null if parsing fails.
+     */
+    private ModelChatResponse parseResponseBody(String responseBodyString, String modelName, String targetUrl) {
+        try {
+            return objectMapper.readValue(responseBodyString, ModelChatResponse.class);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse JSON response from model {} at {}: {}. Response body: {}",
+                    modelName, targetUrl, e.getMessage(), responseBodyString, e);
+            return null;
         }
     }
 }

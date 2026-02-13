@@ -7,18 +7,17 @@ import com.delimce.aibroker.application.llm.ModelListService;
 import com.delimce.aibroker.domain.dto.ApiResponse;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
 
+import lombok.AllArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/llm")
 public class ModelController extends BaseController {
 
     private final ModelListService modelListService;
-
-    public ModelController(ModelListService modelListService) {
-        this.modelListService = modelListService;
-    }
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse> list() {

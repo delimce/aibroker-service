@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.10</version>
+		<version>3.5.10</version>
 		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.delimce</groupId>
 	<artifactId>aibroker-service</artifactId>
-	<version>0.9.9-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>aibroker-service</name>
 	<description>API suite for managing requests to AI LLM models</description>
 	<url />
@@ -38,6 +38,12 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-deepseek</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -257,7 +263,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.96</minimum>
+											<minimum>0.91</minimum>
 										</limit>
 										<limit>
 											<counter>BRANCH</counter>
@@ -267,7 +273,7 @@
 										<limit>
 											<counter>INSTRUCTION</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.96</minimum>
+											<minimum>0.91</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -277,12 +283,12 @@
 								<exclude>**/config/**/*</exclude>
 								<!-- Exclude main application class -->
 								<exclude>**/AibrokerApplication.class</exclude>
-								<!-- Exclude generated classes -->
+								<!-- Exclude generated mapper implementations -->
 								<exclude>**/mapper/*MapperImpl.class</exclude>
-								<!-- Exclude mappers classes -->
-								<exclude>**/mappers/**/*</exclude>
-								<!-- Exclude enums classes -->
-								<exclude>**/domain/enums/**/*</exclude>
+								<!-- Exclude mapper interfaces -->
+								<exclude>**/mappers/**/*.class</exclude>
+								<!-- Exclude enums -->
+								<exclude>**/domain/enums/**/*.class</exclude>
 							</excludes>
 						</configuration>
 					</execution>

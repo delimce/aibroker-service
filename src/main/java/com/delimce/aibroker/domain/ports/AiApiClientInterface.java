@@ -6,7 +6,5 @@ import com.delimce.aibroker.domain.entities.Model;
 
 public interface AiApiClientInterface {
 
-    boolean ping();
-
     ModelChatResponse requestToModel(Model model, ModelRequest modelRequest);
 }

@@ -18,6 +18,7 @@ import com.delimce.aibroker.infrastructure.controllers.BaseController;
 
 import io.jsonwebtoken.io.DecodingException;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,19 +30,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/account")
+@AllArgsConstructor
 public class AccountController extends BaseController {
 
     private final AccountRegisterService accountRegisterService;
     private final AccountLoginService accountLoginService;
     private final AccountVerifiedService accountVerifiedService;
-
-    public AccountController(AccountRegisterService accountRegisterService,
-            AccountLoginService accountLoginService,
-            AccountVerifiedService accountVerifiedService) {
-        this.accountRegisterService = accountRegisterService;
-        this.accountLoginService = accountLoginService;
-        this.accountVerifiedService = accountVerifiedService;
-    }
 
     @PostMapping("/auth")
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginRequest request) {

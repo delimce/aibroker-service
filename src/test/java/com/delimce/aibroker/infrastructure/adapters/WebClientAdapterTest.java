@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -78,70 +77,6 @@ class WebClientAdapterTest {
                 // Initialize the adapter (production constructor accepts only WebClient.Builder
                 // and ObjectMapper)
                 webClientAdapter = new WebClientAdapter(webClientBuilderMock, objectMapper);
-        }
-
-        // --- Ping Tests (Adjusted for clarity and potential fixes) ---
-
-        @Test
-        void ping_ShouldReturnTrue_WhenApiCallIsSuccessful() {
-                // Arrange
-                // Mock the retrieve().toBodilessEntity() chain specifically for this test
-                when(requestHeadersSpecMock.retrieve()).thenReturn(responseSpecMock);
-                ResponseEntity<Void> successResponse = ResponseEntity.ok().build();
-                when(responseSpecMock.toBodilessEntity()).thenReturn(Mono.just(successResponse));
-
-                // Act
-                boolean result = webClientAdapter.ping();
-
-                // Assert
-                assertTrue(result);
-        }
-
-        @Test
-        void ping_ShouldReturnFalse_WhenApiCallReturnsNon2xxStatus() {
-                // Arrange
-                when(requestHeadersSpecMock.retrieve()).thenReturn(responseSpecMock);
-                ResponseEntity<Void> notFoundResponse = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                // Simulate non-2xx status by returning a Mono that completes successfully but
-                // with a non-2xx code
-                when(responseSpecMock.toBodilessEntity()).thenReturn(Mono.just(notFoundResponse));
-
-                // Act
-                boolean result = webClientAdapter.ping();
-
-                // Assert
-                assertFalse(result);
-        }
-
-        @Test
-        void ping_ShouldReturnFalseAndLogError_WhenRetrieveThrowsWebClientResponseException() {
-                // Arrange
-                WebClientResponseException webClientException = new WebClientResponseException(
-                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                "Internal Server Error",
-                                null, null, null);
-                // Simulate retrieve throwing the exception
-                when(requestHeadersSpecMock.retrieve()).thenThrow(webClientException); // Simulate exception earlier
-
-                // Act
-                boolean result = webClientAdapter.ping();
-
-                // Assert
-                assertFalse(result);
-        }
-
-        @Test
-        void ping_ShouldReturnFalseAndLogError_WhenWebClientGetThrowsException() {
-                // Arrange
-                RuntimeException networkException = new RuntimeException("Connection refused");
-                // Override the setup from @BeforeEach for this specific case
-                when(webClientMock.get()).thenThrow(networkException); // Exception happens before retrieve()
-
-                // Act
-                boolean result = webClientAdapter.ping();
-
-                // Assert
-                assertFalse(result);
         }
 
         // --- requestToModel Tests ---

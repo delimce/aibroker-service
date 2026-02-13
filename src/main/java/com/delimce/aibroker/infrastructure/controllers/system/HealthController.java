@@ -7,18 +7,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.delimce.aibroker.domain.dto.ApiResponse;
 import com.delimce.aibroker.infrastructure.controllers.BaseController;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RestController
+@AllArgsConstructor
 final class HealthController extends BaseController {
 
     private final HealthEndpoint healthEndpoint;
     private static final String ERROR_MESSAGE = "Service Unavailable";
-
-    public HealthController(HealthEndpoint healthEndpoint) {
-        this.healthEndpoint = healthEndpoint;
-    }
 
     @GetMapping("/health")
     public ApiResponse health() {
