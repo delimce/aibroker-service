@@ -1,10 +1,5 @@
 package com.delimce.aibroker.domain.entities;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import com.delimce.aibroker.domain.enums.ModelType;
 
 import jakarta.persistence.Column;
@@ -20,15 +15,17 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Builder
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "tbl_model")
-public class Model {
+public class Model extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,13 +55,5 @@ public class Model {
 
     @Column(nullable = true)
     private String costTokenUnit; // ex: 1M -> million
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(nullable = true)
-    private LocalDateTime updatedAt;
 
 }

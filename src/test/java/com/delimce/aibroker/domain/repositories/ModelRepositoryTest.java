@@ -14,6 +14,7 @@ public class ModelRepositoryTest extends TestHandler {
 
     protected Provider aiProvider;
 
+    @Override
     @BeforeEach
     public void setUp() {
         super.setUp();
