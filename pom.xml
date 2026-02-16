@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.delimce</groupId>
 	<artifactId>aibroker-service</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>aibroker-service</name>
 	<description>API suite for managing requests to AI LLM models</description>
 	<url />
@@ -245,6 +245,8 @@
 								<exclude>**/AibrokerApplication.class</exclude>
 								<!-- Exclude generated classes -->
 								<exclude>**/mapper/*MapperImpl.class</exclude>
+								<!-- Exclude entity classes -->
+								<exclude>**/domain/entities/**/*.class</exclude>
 							</excludes>
 							<consoleOutput>true</consoleOutput>
 						</configuration>
@@ -287,6 +289,8 @@
 								<exclude>**/mapper/*MapperImpl.class</exclude>
 								<!-- Exclude mapper interfaces -->
 								<exclude>**/mappers/**/*.class</exclude>
+								<!-- Exclude entity classes -->
+								<exclude>**/domain/entities/**/*.class</exclude>
 								<!-- Exclude enums -->
 								<exclude>**/domain/enums/**/*.class</exclude>
 							</excludes>
