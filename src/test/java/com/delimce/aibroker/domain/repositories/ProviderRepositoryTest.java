@@ -94,8 +94,7 @@ class ProviderRepositoryTest extends TestHandler {
         assertThat(savedProvider.getName()).isEqualTo(name);
         assertThat(savedProvider.getApiKey()).isEqualTo(apiKey);
         assertThat(savedProvider.getModels()).isNotEmpty();
-        assertThat(savedProvider.getModels().size()).isEqualTo(3);
+        assertThat(savedProvider.getModels()).hasSize(3);
 
-      
     }
 }
