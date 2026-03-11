@@ -25,8 +25,6 @@ public class SecurityConfig {
     }
 
     protected static final String[] WHITELISTED_URLS = {
-            "/swagger-ui/**",
-            "/swagger-ui.html",
             "/health",
             "/account/**"
     };

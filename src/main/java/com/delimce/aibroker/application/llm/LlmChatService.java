@@ -25,7 +25,7 @@ public class LlmChatService extends BaseService {
     private final RequestMetricRepository requestMetricRepository;
     private final AiApiClientInterface client;
 
-    private final static int MAX_CONTENT_PREVIEW_LENGTH = 100;
+    private static final int MAX_CONTENT_PREVIEW_LENGTH = 100;
 
     public LlmChatService(ModelRepository modelRepository, UserRequestRepository userRequestRepository,
             RequestMetricRepository requestMetricRepository, AiApiClientInterface client) {

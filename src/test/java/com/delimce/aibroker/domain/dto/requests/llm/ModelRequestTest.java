@@ -178,4 +178,55 @@ class ModelRequestTest {
         assertTrue(violationPath.contains("messages"));
         assertEquals("Content is required", violations.iterator().next().getMessage());
     }
+
+    @Test
+    void whenMessageContentExceeds800Characters_thenValidationViolation() {
+        // Create a message with content exceeding 800 characters
+        String longContent = "a".repeat(801);
+        ModelRequest request = ModelRequest.builder()
+                .model(VALID_MODEL)
+                .messages(new ModelMessageRequest[] {
+                        new ModelMessageRequest("user", longContent)
+                })
+                .build();
+
+        Set<ConstraintViolation<ModelRequest>> violations = validator.validate(request);
+        assertFalse(violations.isEmpty(), "Should have violations for content exceeding 800 characters");
+        
+        // Check that we get the size violation message
+        boolean hasSizeViolation = violations.stream()
+                .anyMatch(v -> v.getMessage().contains("Content must be less than 800 characters"));
+        assertTrue(hasSizeViolation, "Should have size violation for 801 characters");
+    }
+
+    @Test
+    void whenMessageContentExactly800Characters_thenNoValidationViolation() {
+        // Create a message with content exactly 800 characters
+        String exactContent = "a".repeat(800);
+        ModelRequest request = ModelRequest.builder()
+                .model(VALID_MODEL)
+                .messages(new ModelMessageRequest[] {
+                        new ModelMessageRequest("user", exactContent)
+                })
+                .build();
+
+        Set<ConstraintViolation<ModelRequest>> violations = validator.validate(request);
+        assertTrue(violations.isEmpty(), "Should have no violations for content exactly 800 characters");
+    }
+
+    @Test
+    void whenMultipleMessagesWithValidContent_thenNoValidationViolation() {
+        // Create multiple messages with valid content
+        ModelRequest request = ModelRequest.builder()
+                .model(VALID_MODEL)
+                .messages(new ModelMessageRequest[] {
+                        new ModelMessageRequest("user", "Hello, how are you?"),
+                        new ModelMessageRequest("assistant", "I'm doing well, thank you!"),
+                        new ModelMessageRequest("user", "Can you help me with something?")
+                })
+                .build();
+
+        Set<ConstraintViolation<ModelRequest>> violations = validator.validate(request);
+        assertTrue(violations.isEmpty(), "Should have no violations for valid messages");
+    }
 }

@@ -67,7 +67,7 @@ public class JwtTokenAdapter implements JwtTokenInterface {
     }
 
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0", forRemoval = true)
     public String generateToken(User userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
