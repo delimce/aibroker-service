@@ -6,10 +6,7 @@ import com.delimce.aibroker.domain.entities.Model;
 import com.delimce.aibroker.domain.ports.AiApiClientInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.log4j.Log4j2;
-
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -20,13 +17,15 @@ import reactor.core.publisher.Mono;
 
 @Component
 @Log4j2
-@Primary
 public class WebClientAdapter implements AiApiClientInterface {
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
-    public WebClientAdapter(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
+    public WebClientAdapter(
+        WebClient.Builder webClientBuilder,
+        ObjectMapper objectMapper
+    ) {
         this.webClient = webClientBuilder.build();
         this.objectMapper = objectMapper;
     }
@@ -43,8 +42,10 @@ public class WebClientAdapter implements AiApiClientInterface {
      */
     @SuppressWarnings("null")
     @Override
-    public ModelChatResponse requestToModel(Model model, ModelRequest modelRequest) {
-
+    public ModelChatResponse requestToModel(
+        Model model,
+        ModelRequest modelRequest
+    ) {
         if (model == null || model.getProvider() == null) {
             log.error("Cannot request model: Model or its Provider is null.");
             return null;
@@ -54,47 +55,82 @@ public class WebClientAdapter implements AiApiClientInterface {
         String apiKey = model.getProvider().getApiKey();
 
         // Basic validation for URL and API Key
-        if (targetUrl == null || targetUrl.isBlank() || apiKey == null || apiKey.isBlank()) {
-            log.error("Cannot request model '{}': Provider URL or API Key is missing.", model.getName());
+        if (
+            targetUrl == null ||
+            targetUrl.isBlank() ||
+            apiKey == null ||
+            apiKey.isBlank()
+        ) {
+            log.error(
+                "Cannot request model '{}': Provider URL or API Key is missing.",
+                model.getName()
+            );
             return null;
         }
 
         try {
-            String responseBodyString = webClient.post()
-                    .uri(targetUrl)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(Mono.just(modelRequest), ModelRequest.class)
-                    .retrieve() // Initiate the request and retrieve the response spec
-                    .bodyToMono(String.class) // Convert the response body to a Mono<String>
-                    .doOnSuccess(responseBody -> log.info(
-                            "Successfully received response string from model {} at {}: {}",
-                            modelRequest.getModel(), targetUrl, responseBody))
-                    // Apply error handling *after* bodyToMono
-                    .onErrorResume(WebClientResponseException.class, e -> {
-                        HttpStatusCode statusCode = e.getStatusCode();
-                        String responseBody = e.getResponseBodyAsString();
+            String responseBodyString = webClient
+                .post()
+                .uri(targetUrl)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(modelRequest), ModelRequest.class)
+                .retrieve() // Initiate the request and retrieve the response spec
+                .bodyToMono(String.class) // Convert the response body to a Mono<String>
+                .doOnSuccess(responseBody ->
+                    log.info(
+                        "Successfully received response string from model {} at {}: {}",
+                        modelRequest.getModel(),
+                        targetUrl,
+                        responseBody
+                    )
+                )
+                // Apply error handling *after* bodyToMono
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    HttpStatusCode statusCode = e.getStatusCode();
+                    String responseBody = e.getResponseBodyAsString();
+                    log.error(
+                        "Request to model {} at {} failed with status {}: {}. Response body: {}",
+                        modelRequest.getModel(),
+                        targetUrl,
+                        statusCode,
+                        e.getMessage(),
+                        responseBody,
+                        e
+                    );
+                    return Mono.empty(); // Return empty Mono on client/server error
+                })
+                .onErrorResume(
+                    e -> !(e instanceof WebClientResponseException),
+                    e -> {
                         log.error(
-                                "Request to model {} at {} failed with status {}: {}. Response body: {}",
-                                modelRequest.getModel(), targetUrl, statusCode, e.getMessage(), responseBody, e);
-                        return Mono.empty(); // Return empty Mono on client/server error
-                    })
-                    .onErrorResume(e -> !(e instanceof WebClientResponseException), e -> {
-                        log.error("Request to model {} at {} failed due to unexpected error: {}",
-                                modelRequest.getModel(), targetUrl, e.getMessage(), e);
+                            "Request to model {} at {} failed due to unexpected error: {}",
+                            modelRequest.getModel(),
+                            targetUrl,
+                            e.getMessage(),
+                            e
+                        );
                         return Mono.empty(); // Return empty Mono on other errors
-                    })
-                    .block(); // Block synchronously for the result
+                    }
+                )
+                .block(); // Block synchronously for the result
 
             if (responseBodyString == null) {
                 return null; // Indicate failure
             }
 
-            return parseResponseBody(responseBodyString, modelRequest.getModel(), targetUrl);
-
+            return parseResponseBody(
+                responseBodyString,
+                modelRequest.getModel(),
+                targetUrl
+            );
         } catch (Exception e) {
-            log.error("Unexpected synchronous error during requestToModel for model {}: {}",
-                    modelRequest.getModel(), e.getMessage(), e);
+            log.error(
+                "Unexpected synchronous error during requestToModel for model {}: {}",
+                modelRequest.getModel(),
+                e.getMessage(),
+                e
+            );
             return null; // Indicate failure
         }
     }
@@ -107,12 +143,25 @@ public class WebClientAdapter implements AiApiClientInterface {
      * @param targetUrl          The target URL for logging purposes.
      * @return The parsed ModelChatResponse object, or null if parsing fails.
      */
-    private ModelChatResponse parseResponseBody(String responseBodyString, String modelName, String targetUrl) {
+    private ModelChatResponse parseResponseBody(
+        String responseBodyString,
+        String modelName,
+        String targetUrl
+    ) {
         try {
-            return objectMapper.readValue(responseBodyString, ModelChatResponse.class);
+            return objectMapper.readValue(
+                responseBodyString,
+                ModelChatResponse.class
+            );
         } catch (JsonProcessingException e) {
-            log.error("Failed to parse JSON response from model {} at {}: {}. Response body: {}",
-                    modelName, targetUrl, e.getMessage(), responseBodyString, e);
+            log.error(
+                "Failed to parse JSON response from model {} at {}: {}. Response body: {}",
+                modelName,
+                targetUrl,
+                e.getMessage(),
+                responseBodyString,
+                e
+            );
             return null;
         }
     }

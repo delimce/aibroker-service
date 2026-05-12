@@ -59,27 +59,81 @@ To clean, compile, run tests, and package the application into an executable JAR
 
 This will create the file `target/aibroker-service-x.x.x-SNAPSHOT.jar`.
 
-To run the application in production mode:
+## Run with profiles
+
+This project supports two runtime profiles:
+
+- `cloud`: Uses MySQL configuration from `.env`.
+- `home`: Uses local SQLite database at `${HOME}/.aibroker/aibroker.db`.
+
+If no profile is provided, the app defaults to `cloud`.
+
+### Cloud profile (MySQL)
+
+1. Copy and configure `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Start MySQL (local dev):
+   ```bash
+   docker compose up -d
+   ```
+3. Run app with cloud profile:
+   ```bash
+   SPRING_PROFILES_ACTIVE=cloud ./start.sh
+   ```
+
+### Home profile (SQLite)
+
+1. No MySQL container required.
+2. Run app with home profile:
+   ```bash
+   SPRING_PROFILES_ACTIVE=home ./start.sh
+   ```
+
+## Run app
+
+To run the application:
 
 ```bash
 ./start.sh
 ```
 
+### Quick command table
+
+| Use case | Command |
+|---|---|
+| Run with default profile (`cloud`) | `./start.sh` |
+| Run with cloud profile explicitly | `SPRING_PROFILES_ACTIVE=cloud ./start.sh` |
+| Run with home profile (SQLite) | `SPRING_PROFILES_ACTIVE=home ./start.sh` |
+| Flyway info (cloud) | `./flyway.sh info cloud` |
+| Flyway migrate (cloud) | `./flyway.sh migrate cloud` |
+| Flyway info (home) | `./flyway.sh info home` |
+| Flyway migrate (home) | `./flyway.sh migrate home` |
+
 ## Database Migrations
 
 This project uses Flyway for database migrations. Migration scripts are located in `src/main/resources/db/migration`.
 
-To manage database migrations, use the provided script that automatically loads database configuration from your .env file:
+To manage database migrations, use the provided script with profile support (`cloud` or `home`):
 
 ```bash
-# See the migration status
-./flyway.sh info
+# Cloud profile (reads DB config from .env)
+./flyway.sh info cloud
+./flyway.sh migrate cloud
+./flyway.sh clean cloud
 
-# Apply pending migrations
-./flyway.sh migrate
+# Home profile (SQLite local database)
+./flyway.sh info home
+./flyway.sh migrate home
+./flyway.sh clean home
+```
 
-# Clean the database (USE WITH CAUTION - DELETES ALL DATA)
-./flyway.sh clean
+You can also place profile first:
+
+```bash
+./flyway.sh cloud info
+./flyway.sh home migrate
 ```
 
 ### Migration Documentation

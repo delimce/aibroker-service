@@ -33,7 +33,7 @@ else
 fi
 
 # Set environment variables
-export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-"default"}
+export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-"cloud"}
 export JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./heapdump.hprof -XX:+DisableExplicitGC -Djava.awt.headless=true"
 export APPLICATION_NAME="aibroker-service"
 
