@@ -1,0 +1,18 @@
+[
+  {
+    "adapter": "Java",
+    "request": "launch",
+    "label": "Java: Debug AibrokerApplication",
+    "mainClass": "com.delimce.aibroker.AibrokerApplication",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "stopOnEntry": false,
+    "build": "Maven: compile"
+  },
+  {
+    "adapter": "Java",
+    "request": "attach",
+    "label": "Java: Attach to Maven debug 5005",
+    "hostName": "localhost",
+    "port": 5005
+  }
+]

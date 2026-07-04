@@ -4,31 +4,15 @@ server:
     context-path: /v1
 
 spring:
+  profiles:
+    default: cloud
   application:
     name: aibroker-service
-  datasource:
-    url: ${SPRING.DATASOURCE.URL}
-    username: ${SPRING.DATASOURCE.USERNAME}
-    password: ${SPRING.DATASOURCE.PASSWORD}
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 30000
-      max-lifetime: 1800000
-      connection-timeout: 30000
   jpa:
-    hibernate:
-      ddl-auto: validate
     show-sql: false
     open-in-view: false
     properties:
       hibernate:
-
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    locations: classpath:db/migration
-    validate-on-migrate: true
   main:
     allow-bean-definition-overriding: true
   autoconfigure:
